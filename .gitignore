@@ -1,0 +1,8 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Корневые env
+.env
+.env.*
+!.env.app.example
