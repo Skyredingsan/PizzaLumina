@@ -1,4 +1,3 @@
-
 services:
   php:
     build:
@@ -8,10 +7,9 @@ services:
       args:
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
-    container_name: pizzalumina-php
+    restart: unless-stopped
     volumes:
       - ./src:/var/www/app
-      - ~/.composer:/tmp/composer:rw
     environment:
       - PHP_IDE_CONFIG=serverName=PizzaLumina
       - APP_ENV=local
@@ -27,7 +25,7 @@ services:
 
   nginx:
     image: nginx:1.27-alpine
-    container_name: pizzalumina-nginx
+    restart: unless-stopped
     ports:
       - "${NGINX_PORT:-8080}:80"
     volumes:
@@ -40,7 +38,7 @@ services:
 
   postgres:
     image: postgres:17-alpine
-    container_name: pizzalumina-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-pizzalumina}
       POSTGRES_USER: ${POSTGRES_USER:-laravel}
@@ -59,7 +57,7 @@ services:
 
   redis:
     image: redis:7.4-alpine
-    container_name: pizzalumina-redis
+    restart: unless-stopped
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -74,7 +72,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:4.0-management-alpine
-    container_name: pizzalumina-rabbitmq
+    restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}

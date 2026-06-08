@@ -1,15 +1,8 @@
-/.idea
-/.vscode
-/.docker
-/vendor
-/node_modules
+# OS
+.DS_Store
+Thumbs.db
+
+# Корневые env
 .env
 .env.*
-!.env.example
-/storage/*.key
-/composer.lock
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-/.phpunit.cache
+!.env.app.example
