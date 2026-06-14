@@ -1,0 +1,11 @@
+services:
+  php:
+    build:
+      target: prod
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes: !reset []
+
+  nginx:
+    volumes: !reset []
