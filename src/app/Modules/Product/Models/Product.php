@@ -16,4 +16,14 @@ class Product extends Model
         'weight',
         'category',
     ];
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = (int) round($value * 100);
+    }
+
+    public function getPriceAttribute($value)
+    {
+        return $value / 100;
+    }
 }
