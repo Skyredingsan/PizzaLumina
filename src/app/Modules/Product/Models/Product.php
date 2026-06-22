@@ -4,6 +4,7 @@ namespace App\Modules\Product\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Product extends Model
 {
@@ -25,5 +26,13 @@ class Product extends Model
     public function getPriceAttribute($value)
     {
         return $value / 100;
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): Factory
+    {
+        return \Database\Factories\ProductFactory::new();
     }
 }
