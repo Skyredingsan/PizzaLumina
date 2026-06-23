@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\Feature\Api;
+namespace Tests\Feature\Api\Product;
 
+use Tests\Feature\Api\ApiTestCase;
 use App\Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,7 +16,11 @@ class ProductIndexTest extends ApiTestCase
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                '*' => ['id', 'name', 'price', 'category'],
+                'data' => [
+                    '*' => ['id', 'name', 'price', 'category'],
+                ],
+                'links',
+                'meta',
             ]);
     }
 }

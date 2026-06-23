@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Feature\Api;
+namespace Tests\Feature\Api\Product;
 
-use App\Modules\Product\Models\Product;
+use Tests\Feature\Api\ApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductStoreTest extends ApiTestCase
