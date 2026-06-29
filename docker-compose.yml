@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./src:/var/www/app
+      - composer_cache:/tmp/composer
     environment:
       - PHP_IDE_CONFIG=serverName=PizzaLumina
       - APP_ENV=local
@@ -93,6 +94,7 @@ volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
+  composer_cache:
 
 networks:
   pizzalumina:
