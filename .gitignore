@@ -6,3 +6,6 @@ Thumbs.db
 .env
 .env.*
 !.env.app.example
+
+# Logs
+*.log
