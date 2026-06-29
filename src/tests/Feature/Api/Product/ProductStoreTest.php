@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Api\Product;
 
-use Tests\Feature\Api\ApiTestCase;
 use App\Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\Feature\Api\ApiTestCase;
 
 class ProductStoreTest extends ApiTestCase
 {
@@ -12,12 +14,11 @@ class ProductStoreTest extends ApiTestCase
     {
         $payload = $this->getValidProductData();
 
-        $response = $this->postJson($this->getApiUrl('/products'), $payload);
+        $response = $this->withToken($this->adminToken())
+            ->postJson($this->getApiUrl('/products'), $payload);
 
         $response->assertStatus(Response::HTTP_CREATED)
-            ->assertJsonFragment([
-                'name' => $payload['name'],
-            ]);
+            ->assertJsonPath('data.name', $payload['name']);
     }
 
     public function test_can_create_product_with_fractional_price(): void
@@ -27,7 +28,8 @@ class ProductStoreTest extends ApiTestCase
             'name'  => 'Пицца с дробной ценой',
         ]);
 
-        $response = $this->postJson($this->getApiUrl('/products'), $payload);
+        $response = $this->withToken($this->adminToken())
+            ->postJson($this->getApiUrl('/products'), $payload);
 
         $response->assertStatus(Response::HTTP_CREATED)
             ->assertJsonPath('data.price.amount', 150099)
@@ -41,9 +43,9 @@ class ProductStoreTest extends ApiTestCase
         $payload = $this->getValidProductData();
         unset($payload['name']);
 
-        $response = $this->postJson($this->getApiUrl('/products'), $payload);
-
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        $this->withToken($this->adminToken())
+            ->postJson($this->getApiUrl('/products'), $payload)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['name']);
     }
 
@@ -54,9 +56,9 @@ class ProductStoreTest extends ApiTestCase
         $payload = $this->getValidProductData();
         $payload['name'] = $product->name;
 
-        $response = $this->postJson($this->getApiUrl('/products'), $payload);
-
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        $this->withToken($this->adminToken())
+            ->postJson($this->getApiUrl('/products'), $payload)
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['name']);
     }
 }

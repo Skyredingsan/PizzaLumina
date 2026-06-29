@@ -52,7 +52,10 @@ COPY docker/php/conf/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY docker/php/conf/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 RUN mkdir -p /var/www/app && \
-    chown -R www-data:www-data /var/www/app
+    chown -R www-data:www-data /var/www/app && \
+    mkdir -p /var/www/.config/psysh && \
+    chown -R www-data:www-data /var/www/.config && \
+    chmod -R 755 /var/www/.config
 
 
 # ========================================

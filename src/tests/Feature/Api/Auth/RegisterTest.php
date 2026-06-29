@@ -67,9 +67,7 @@ class RegisterTest extends ApiTestCase
         Notification::assertSentTo($user, \App\Modules\User\Notifications\SendWelcomeSms::class);
     }
 
-    /**
-     * @dataProvider invalidRegistrationProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidRegistrationProvider')]
     public function test_register_validates_input(array $payload, string $errorField): void
     {
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
@@ -79,19 +77,27 @@ class RegisterTest extends ApiTestCase
 
     public static function invalidRegistrationProvider(): array
     {
-        $valid = (new self())->validRegisterPayload();
+        $makeValid = function (): array {
+            return [
+                'name'                  => 'Test User',
+                'phone'                 => '+7999' . random_int(1000000, 9999999),
+                'email'                 => 'test_' . uniqid() . '@example.com',
+                'password'              => 'Password@123',
+                'password_confirmation' => 'Password@123',
+            ];
+        };
 
         return [
-            'missing name'            => [array_merge($valid, ['name' => null]), 'name'],
-            'name too short'          => [array_merge($valid, ['name' => 'A']), 'name'],
-            'missing phone'           => [array_merge($valid, ['phone' => null]), 'phone'],
-            'phone bad format'        => [array_merge($valid, ['phone' => '89991234567']), 'phone'],  // без +
-            'phone too short'         => [array_merge($valid, ['phone' => '+7123']), 'phone'],
-            'missing email'           => [array_merge($valid, ['email' => null]), 'email'],
-            'invalid email'           => [array_merge($valid, ['email' => 'not-email']), 'email'],
-            'missing password'        => [array_merge($valid, ['password' => null]), 'password'],
-            'password not confirmed'  => [array_merge($valid, ['password_confirmation' => 'different@123']), 'password'],
-            'password too weak'       => [array_merge($valid, ['password' => '123', 'password_confirmation' => '123']), 'password'],
+            'missing name'           => [array_merge($makeValid(), ['name' => null]), 'name'],
+            'name too short'         => [array_merge($makeValid(), ['name' => 'A']), 'name'],
+            'missing phone'          => [array_merge($makeValid(), ['phone' => null]), 'phone'],
+            'phone bad format'       => [array_merge($makeValid(), ['phone' => '89991234567']), 'phone'],
+            'phone too short'        => [array_merge($makeValid(), ['phone' => '+7123']), 'phone'],
+            'missing email'          => [array_merge($makeValid(), ['email' => null]), 'email'],
+            'invalid email'          => [array_merge($makeValid(), ['email' => 'not-email']), 'email'],
+            'missing password'       => [array_merge($makeValid(), ['password' => null]), 'password'],
+            'password not confirmed' => [array_merge($makeValid(), ['password_confirmation' => 'different@123']), 'password'],
+            'password too weak'      => [array_merge($makeValid(), ['password' => '123', 'password_confirmation' => '123']), 'password'],
         ];
     }
 

@@ -129,10 +129,9 @@ return [
 
         'sms' => [
             'driver' => 'single',
-            'path' => storage_path('logs/sms.log'),
-            'level' => env('info'),
-        ]
-
+            'path'   => storage_path('logs/sms.log'),
+            'level'  => 'info',
+        ],
     ],
 
 ];
