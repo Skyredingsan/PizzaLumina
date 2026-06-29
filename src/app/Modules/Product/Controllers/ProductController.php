@@ -29,26 +29,27 @@ final class ProductController extends Controller
     {
         $product = Product::create($request->validated());
 
-        return response()->json(
-            new ProductResource($product),
-            Response::HTTP_CREATED,
-        );
+        return (new ProductResource($product))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function show(Product $product): JsonResponse
     {
-        return response()->json(new ProductResource($product));
+        return (new ProductResource($product))->response();
     }
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         $product->update($request->validated());
-        return response()->json(new ProductResource($product));
+
+        return (new ProductResource($product))->response();
     }
 
-    public function destroy(Product $product): JsonResponse
+    public function destroy(Product $product): Response
     {
         $product->delete();
+
         return response()->noContent();
     }
 }
