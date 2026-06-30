@@ -21,30 +21,28 @@ final class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $result = $this->auth->register($request->toRegisterInput());
+        $token = $this->auth->register($request->toRegisterInput());
 
         return $this->respondWithToken(
-            token: $result['token'],
+            token: $token,
             status: Response::HTTP_CREATED,
         );
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $result = $this->auth->login(
+        $token = $this->auth->login(
             $request->string('email')->toString(),
             $request->string('password')->toString(),
         );
 
-        if ($result === null) {
+        if ($token === null) {
             return response()->json([
                 'message' => 'Неверные учётные данные.',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->respondWithToken(
-            token: $result['token'],
-        );
+        return $this->respondWithToken(token: $token);
     }
 
     public function logout(): JsonResponse
@@ -56,18 +54,22 @@ final class AuthController extends Controller
 
     public function me(): JsonResponse
     {
+        $user = $this->auth->currentUser();
+
+        if ($user === null) {
+            return response()->json([
+                'message' => 'Пользователь не найден.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
         return response()->json([
-            'data' => UserResource::make($this->auth->currentUser()),
+            'data' => UserResource::make($user),
         ]);
     }
 
     public function refresh(): JsonResponse
     {
-        $result = $this->auth->refresh();
-
-        return $this->respondWithToken(
-            token: $result['token'],
-        );
+        return $this->respondWithToken(token: $this->auth->refresh());
     }
 
     private function respondWithToken(string $token, int $status = 200): JsonResponse

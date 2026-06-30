@@ -10,13 +10,14 @@ use App\Modules\User\Notifications\SendWelcomeSms;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\JWTGuard;
 
+
 final class AuthService
 {
     /**
      * @param  array{name: string, phone: string, email: string, password: string}  $input
-     * @return array{user: User, token: string}  Возвращает юзера и JWT-токен.
+     * @return string  JWT-токен свежезарегистрированного пользователя.
      */
-    public function register(array $input): array
+    public function register(array $input): string
     {
         $user = User::create([
             'name'     => $input['name'],
@@ -28,15 +29,13 @@ final class AuthService
 
         $user->notify(new SendWelcomeSms($user->name));
 
-        $token = $this->guard()->login($user);
-
-        return ['user' => $user, 'token' => $token];
+        return $this->guard()->login($user);
     }
 
     /**
-     * @return array{user: User, token: string}|null  null при неверных данных.
+     * @return string|null  JWT-токен, null при неверных учётных данных.
      */
-    public function login(string $email, string $password): ?array
+    public function login(string $email, string $password): ?string
     {
         $token = $this->guard()->attempt([
             'email'    => $email,
@@ -47,10 +46,7 @@ final class AuthService
             return null;
         }
 
-        return [
-            'user'  => $this->guard()->user(),
-            'token' => $token,
-        ];
+        return $token;
     }
 
     public function logout(): void
@@ -58,15 +54,12 @@ final class AuthService
         $this->guard()->logout();
     }
 
-    public function refresh(): array
+    public function refresh(): string
     {
-        return [
-            'user'  => $this->guard()->user(),
-            'token' => $this->guard()->refresh(),
-        ];
+        return $this->guard()->refresh();
     }
 
-    public function currentUser(): User
+    public function currentUser(): ?User
     {
         return $this->guard()->user();
     }

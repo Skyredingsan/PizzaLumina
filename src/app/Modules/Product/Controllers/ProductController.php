@@ -20,9 +20,7 @@ final class ProductController extends Controller
     {
         $products = Product::paginate(self::PER_PAGE);
 
-        return response()->json(
-            ProductResource::collection($products)->response()->getData(true)
-        );
+        return ProductResource::collection($products)->response();
     }
 
     public function store(StoreProductRequest $request): JsonResponse

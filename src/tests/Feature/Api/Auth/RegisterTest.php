@@ -29,17 +29,12 @@ class RegisterTest extends ApiTestCase
                 'data' => ['token', 'expires_in'],
             ]);
 
-        $this->assertDatabaseHas('users', [
-            'name'  => 'Иван Иванов',
-            'phone' => '+79991234567',
-            'email' => 'ivan@example.com',
-            'role'  => 'customer',
-        ]);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'ivan@example.com',
-            'phone' => '+79991234567',
-            'role'  => UserRole::Customer->value,
+        'name'  => 'Иван Иванов',
+        'phone' => '+79991234567',
+        'email' => 'ivan@example.com',
+        'role'  => UserRole::Customer->value,
         ]);
     }
 
@@ -65,7 +60,6 @@ class RegisterTest extends ApiTestCase
         $this->postJson($this->getApiUrl('/auth/register'), $payload);
 
         $user = User::where('email', $payload['email'])->firstOrFail();
-
 
         Notification::assertSentTo($user, \App\Modules\User\Notifications\SendWelcomeSms::class);
     }
@@ -130,9 +124,8 @@ class RegisterTest extends ApiTestCase
     {
         $payload = array_merge($this->validRegisterPayload(), ['role' => 'admin']);
 
-        $this->postJson($this->getApiUrl('/auth/register'), $payload)
-            ->assertStatus(Response::HTTP_CREATED);
-
+            $this->postJson($this->getApiUrl('/auth/register'), $payload)
+                ->assertStatus(Response::HTTP_CREATED);
 
         $this->assertDatabaseHas('users', [
             'email' => $payload['email'],
@@ -144,7 +137,7 @@ class RegisterTest extends ApiTestCase
     {
         return [
             'name'                  => 'Test User',
-            'phone'                 => '+7999' . rand(1000000, 9999999),
+            'phone'                 => '+7999' . random_int(1000000, 9999999),
             'email'                 => 'test_' . uniqid() . '@example.com',
             'password'              => 'Password@123',
             'password_confirmation' => 'Password@123',

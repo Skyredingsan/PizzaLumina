@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use App\Modules\User\Channels\SmsChannel;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Notification::extend('sms', function ($container) {
+        Notification::extend('sms', static function (Container $container): SmsChannel {
             return $container->make(SmsChannel::class);
         });
     }

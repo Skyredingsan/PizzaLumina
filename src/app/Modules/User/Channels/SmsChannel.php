@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Log;
 final class SmsChannel
 {
     /**
-     * @param  mixed  $notifiable  Обычно User — у кого есть phone
-     * @param  SendWelcomeSms  $notification  Само уведомление
+     * @param  object  $notifiable  Обычно User — у него есть свойство phone.
+     * @param  Notification  $notification  Уведомление с методом toSms().
      */
-    public function send(mixed $notifiable, Notification $notification): void
+    public function send(object $notifiable, Notification $notification): void
     {
-        if (! $notifiable->phone) {
+        if (! isset($notifiable->phone) || empty($notifiable->phone)) {
             return;
         }
 

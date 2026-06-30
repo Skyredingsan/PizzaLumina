@@ -10,21 +10,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Middleware для проверки роли пользователя.
- */
-class RoleMiddleware
+final class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        // Достаём пользователя из guard'а 'api' (без инъекции в конструктор —
-        // контейнер Laravel не умеет резолвить JWTGuard напрямую).
-        $user = Auth::guard('api')->user();
-
-        if (! $user) {
+        try {
+            $roleValue = Auth::guard('api')->payload()->get('role');
+        } catch (\Throwable) {
             return response()->json([
-                'message' => 'Не аутентифицирован.',
-            ], 401);
+                'message' => 'Неавторизованный запрос. Укажите валидный Bearer-токен.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $userRole = $roleValue !== null
+            ? UserRole::tryFrom($roleValue)
+            : null;
+
+        if ($userRole === null) {
+            return response()->json([
+                'message' => 'Токен не содержит валидной роли. Обновите токен через /auth/refresh.',
+            ], Response::HTTP_FORBIDDEN);
         }
 
         $allowedRoles = array_map(
@@ -32,11 +37,11 @@ class RoleMiddleware
             $roles,
         );
 
-        if (! in_array($user->role, $allowedRoles, true)) {
+        if (! in_array($userRole, $allowedRoles, true)) {
             return response()->json([
                 'message' => 'Доступ запрещён. Требуется роль: '
                     . implode(', ', array_map(fn (UserRole $r) => $r->value, $allowedRoles)),
-            ], 403);
+            ], Response::HTTP_FORBIDDEN);
         }
 
         return $next($request);

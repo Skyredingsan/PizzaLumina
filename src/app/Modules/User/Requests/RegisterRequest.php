@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
             'phone'    => [
                 'required',
                 'string',
-                'regex:/^\+\d{10,15}$/',
+                'regex:/^\+[1-9]\d{6,14}$/',
                 'unique:users,phone',
             ],
             'email'    => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email'],
