@@ -15,10 +15,10 @@ class ProductShowTest extends ApiTestCase
         $response = $this->getJson($this->getApiUrl("/products/{$product->id}"));
 
         $response->assertStatus(Response::HTTP_OK)
-            ->assertJson([
-                'id' => $product->id,
-                'name' => $product->name,
-            ]);
+            ->assertJsonPath('data.id', $product->id)
+            ->assertJsonPath('data.name', $product->name)
+            ->assertJsonPath('data.price.amount', $product->price->getAmount())
+            ->assertJsonPath('data.price.currency', 'RUB');
     }
 
     public function test_returns_not_found_for_invalid_product(): void

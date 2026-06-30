@@ -8,30 +8,26 @@ use App\Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\Api\ApiTestCase;
 
-/**
- * Тесты для PATCH /api/products/{id} (частичное обновление).
- */
 class ProductUpdateTest extends ApiTestCase
 {
     public function test_can_update_product(): void
     {
         $product = Product::factory()->create();
-        $updatedData = ['name' => 'Updated Pizza', 'price' => '2500'];
 
-        $response = $this->patchJson(
-            $this->getApiUrl("/products/{$product->id}"),
-            $updatedData
-        );
+        $updatedData = [
+            'name'        => 'Updated Pizza',
+            'description' => 'Updated description',
+            'price'       => '2500',
+            'weight'      => 500,
+            'category'    => $product->category->value,
+        ];
+
+        $response = $this->withToken($this->adminToken())
+            ->patchJson($this->getApiUrl("/products/{$product->id}"), $updatedData);
 
         $response->assertStatus(Response::HTTP_OK)
-            ->assertJsonFragment([
-                'name'  => 'Updated Pizza',
-                'price' => [
-                    'amount'   => 250000,   // 2500 рублей = 250000 центов
-                    'rubles'   => 2500.0,
-                    'currency' => 'RUB',
-                ],
-            ]);
+            ->assertJsonPath('data.name', 'Updated Pizza')
+            ->assertJsonPath('data.price.amount', 250000);
 
         $this->assertDatabaseHas('products', [
             'id'    => $product->id,
@@ -43,20 +39,22 @@ class ProductUpdateTest extends ApiTestCase
     public function test_can_partially_update_product(): void
     {
         $product = Product::factory()->create([
-            'name'  => 'Original',
-            'price' => 100000,  // 1000.00 руб в центах
+            'name'  => 'Original Name',
+            'price' => 150000,  // 1500.00 руб
         ]);
 
-        $this->patchJson(
-            $this->getApiUrl("/products/{$product->id}"),
-            ['name' => 'Updated Only Name']
-        )->assertStatus(Response::HTTP_OK)
-            ->assertJsonFragment(['name' => 'Updated Only Name']);
+        $this->withToken($this->adminToken())
+            ->patchJson(
+                $this->getApiUrl("/products/{$product->id}"),
+                ['name' => 'Updated Only Name']
+            )
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonPath('data.name', 'Updated Only Name');
 
         // Цена не должна была измениться
         $this->assertDatabaseHas('products', [
             'id'    => $product->id,
-            'price' => 100000,
+            'price' => 150000,
         ]);
     }
 
@@ -64,10 +62,12 @@ class ProductUpdateTest extends ApiTestCase
     {
         $product = Product::factory()->create();
 
-        $this->patchJson(
-            $this->getApiUrl("/products/{$product->id}"),
-            ['price' => 'invalid']
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        $this->withToken($this->adminToken())
+            ->patchJson(
+                $this->getApiUrl("/products/{$product->id}"),
+                ['price' => 'invalid']
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['price']);
     }
 
@@ -75,18 +75,22 @@ class ProductUpdateTest extends ApiTestCase
     {
         $product = Product::factory()->create();
 
-        $this->patchJson(
-            $this->getApiUrl("/products/{$product->id}"),
-            ['price' => -100]
-        )->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        $this->withToken($this->adminToken())
+            ->patchJson(
+                $this->getApiUrl("/products/{$product->id}"),
+                ['price' => -100]
+            )
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['price']);
     }
 
     public function test_cannot_update_nonexistent_product(): void
     {
-        $this->patchJson(
-            $this->getApiUrl('/products/999999'),
-            ['name' => 'Whatever']
-        )->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->withToken($this->adminToken())
+            ->patchJson(
+                $this->getApiUrl('/products/999999'),
+                ['name' => 'Whatever']
+            )
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 }

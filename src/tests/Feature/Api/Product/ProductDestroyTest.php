@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Api\Product;
 
-use Tests\Feature\Api\ApiTestCase;
 use App\Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\Feature\Api\ApiTestCase;
 
 class ProductDestroyTest extends ApiTestCase
 {
@@ -12,16 +14,17 @@ class ProductDestroyTest extends ApiTestCase
     {
         $product = Product::factory()->create();
 
-        $response = $this->deleteJson($this->getApiUrl("/products/{$product->id}"));
+        $this->withToken($this->adminToken())
+            ->deleteJson($this->getApiUrl("/products/{$product->id}"))
+            ->assertStatus(Response::HTTP_NO_CONTENT);
 
-        $response->assertStatus(Response::HTTP_NO_CONTENT);
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }
 
     public function test_returns_not_found_when_deleting_invalid_product(): void
     {
-        $response = $this->deleteJson($this->getApiUrl('/products/999999'));
-
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $this->withToken($this->adminToken())
+            ->deleteJson($this->getApiUrl('/products/999999'))
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 }
