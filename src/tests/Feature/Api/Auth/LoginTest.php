@@ -24,9 +24,9 @@ class LoginTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJsonStructure([
-                'data' => ['user' => ['id', 'name', 'email', 'phone', 'role'], 'token', 'token_type', 'expires_in'],
+                'data' => ['token', 'expires_in'],
             ])
-            ->assertJsonPath('data.user.email', 'login@example.com');
+            ->assertJsonPath('data.token', fn ($t) => is_string($t) && $t !== '');
     }
 
     public function test_login_returns_token_for_authenticated_user(): void

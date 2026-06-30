@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
             'phone'    => [
                 'required',
                 'string',
-                'regex:/^\+\d{10,15}$/',   // E.164: + и 10-15 цифр
+                'regex:/^\+\d{10,15}$/',
                 'unique:users,phone',
             ],
             'email'    => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email'],
@@ -39,10 +39,23 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.regex'    => 'Телефон должен быть в международном формате, например +79991234567.',
-            'phone.unique'   => 'Пользователь с таким телефоном уже зарегистрирован.',
-            'email.unique'   => 'Пользователь с таким email уже зарегистрирован.',
+            'phone.regex'        => 'Телефон должен быть в международном формате, например +79991234567.',
+            'phone.unique'       => 'Пользователь с таким телефоном уже зарегистрирован.',
+            'email.unique'       => 'Пользователь с таким email уже зарегистрирован.',
             'password.confirmed' => 'Пароль и подтверждение не совпадают.',
+        ];
+    }
+
+    /**
+     * @return array{name: string, phone: string, email: string, password: string}
+     */
+    public function toRegisterInput(): array
+    {
+        return [
+            'name'     => $this->string('name')->toString(),
+            'phone'    => $this->string('phone')->toString(),
+            'email'    => $this->string('email')->toString(),
+            'password' => $this->string('password')->toString(),
         ];
     }
 }

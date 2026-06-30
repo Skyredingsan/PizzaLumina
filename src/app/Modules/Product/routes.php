@@ -13,6 +13,5 @@ Route::middleware('jwt.auth')
     ->group(function (): void {
         Route::post('products', [ProductController::class, 'store']);
         Route::patch('products/{product}', [ProductController::class, 'update']);
-        Route::put('products/{product}', [ProductController::class, 'update']);
         Route::delete('products/{product}', [ProductController::class, 'destroy']);
     });

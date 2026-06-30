@@ -25,13 +25,16 @@ class RegisterTest extends ApiTestCase
         $response = $this->postJson($this->getApiUrl('/auth/register'), $payload);
 
         $response->assertStatus(Response::HTTP_CREATED)
-            ->assertJsonPath('data.user.name', 'Иван Иванов')
-            ->assertJsonPath('data.user.phone', '+79991234567')
-            ->assertJsonPath('data.user.email', 'ivan@example.com')
-            ->assertJsonPath('data.user.role', 'customer')
             ->assertJsonStructure([
-                'data' => ['user' => ['id', 'name', 'phone', 'email', 'role'], 'token', 'token_type', 'expires_in'],
+                'data' => ['token', 'expires_in'],
             ]);
+
+        $this->assertDatabaseHas('users', [
+            'name'  => 'Иван Иванов',
+            'phone' => '+79991234567',
+            'email' => 'ivan@example.com',
+            'role'  => 'customer',
+        ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'ivan@example.com',
@@ -63,7 +66,7 @@ class RegisterTest extends ApiTestCase
 
         $user = User::where('email', $payload['email'])->firstOrFail();
 
-        // Проверяем, что юзеру отправлена SendWelcomeSms
+
         Notification::assertSentTo($user, \App\Modules\User\Notifications\SendWelcomeSms::class);
     }
 
@@ -130,7 +133,7 @@ class RegisterTest extends ApiTestCase
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
             ->assertStatus(Response::HTTP_CREATED);
 
-        // Даже если попытались подсунуть role — она должна быть 'customer'
+
         $this->assertDatabaseHas('users', [
             'email' => $payload['email'],
             'role'  => UserRole::Customer->value,

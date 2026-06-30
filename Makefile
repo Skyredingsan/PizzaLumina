@@ -27,16 +27,14 @@ artisan:
 migrate:
 	docker compose exec php php artisan migrate
 
-test:
+
+test: test-db-reset
 	docker compose exec php php artisan test
 
-test-db-create:
-	docker compose exec postgres psql -U laravel -d postgres -c "CREATE DATABASE pizzalumina_test;"
-
-test-db-drop:
+test-db-reset: test-db-create
 	docker compose exec postgres psql -U laravel -d postgres -c "DROP DATABASE IF EXISTS pizzalumina_test;"
-
-test-db-reset: test-db-drop test-db-create
+	docker compose exec postgres psql -U laravel -d postgres -c "CREATE DATABASE pizzalumina_test;"
+	docker compose exec php php artisan migrate --database=pgsql --env=testing
 
 fresh: clean build up
 	docker compose exec php php artisan migrate:fresh --seed
