@@ -31,6 +31,5 @@ composer.lock
 npm-debug.log
 yarn-error.log
 .phpstan/
-phpstan-baseline.neon
 .phpunit.result.cache
 .phpunit.cache/
