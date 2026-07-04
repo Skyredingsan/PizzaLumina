@@ -13,12 +13,12 @@ class LoginTest extends ApiTestCase
     public function test_can_login_with_valid_credentials(): void
     {
         $user = User::factory()->create([
-            'email'    => 'login@example.com',
+            'email' => 'login@example.com',
             'password' => 'Password@123',
         ]);
 
         $response = $this->postJson($this->getApiUrl('/auth/login'), [
-            'email'    => 'login@example.com',
+            'email' => 'login@example.com',
             'password' => 'Password@123',
         ]);
 
@@ -34,7 +34,7 @@ class LoginTest extends ApiTestCase
         $user = User::factory()->create(['password' => 'Password@123']);
 
         $token = $this->postJson($this->getApiUrl('/auth/login'), [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'Password@123',
         ])->json('data.token');
 
@@ -49,7 +49,7 @@ class LoginTest extends ApiTestCase
         $user = User::factory()->create();
 
         $this->postJson($this->getApiUrl('/auth/login'), [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'wrong-password',
         ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED)
@@ -59,7 +59,7 @@ class LoginTest extends ApiTestCase
     public function test_cannot_login_with_nonexistent_email(): void
     {
         $this->postJson($this->getApiUrl('/auth/login'), [
-            'email'    => 'nobody@example.com',
+            'email' => 'nobody@example.com',
             'password' => 'Password@123',
         ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED)
@@ -69,7 +69,7 @@ class LoginTest extends ApiTestCase
     public function test_login_validates_input(): void
     {
         $this->postJson($this->getApiUrl('/auth/login'), [
-            'email'    => 'not-an-email',
+            'email' => 'not-an-email',
             'password' => '',
         ])
             ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)

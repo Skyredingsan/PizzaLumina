@@ -13,8 +13,8 @@ use Stringable;
 final readonly class Money implements Stringable
 {
     /**
-     * @param int    $amount   Сумма в центах (минорная единица валюты)
-     * @param string $currency ISO 4217 код валюты, 3 заглавные буквы (RUB, USD, EUR)
+     * @param  int  $amount  Сумма в центах (минорная единица валюты)
+     * @param  string  $currency  ISO 4217 код валюты, 3 заглавные буквы (RUB, USD, EUR)
      */
     public function __construct(
         private int $amount,
@@ -22,13 +22,13 @@ final readonly class Money implements Stringable
     ) {
         if ($amount < 0) {
             throw new InvalidArgumentException(
-                'Money amount cannot be negative. Got: ' . $amount
+                'Money amount cannot be negative. Got: '.$amount
             );
         }
 
         if (! preg_match('/^[A-Z]{3}$/', $currency)) {
             throw new InvalidArgumentException(
-                'Currency must be a 3-letter uppercase ISO 4217 code. Got: ' . $currency
+                'Currency must be a 3-letter uppercase ISO 4217 code. Got: '.$currency
             );
         }
     }
@@ -76,6 +76,7 @@ final readonly class Money implements Stringable
 
     /**
      * Сложение. Оба Money должны быть в одной валюте.
+     *
      * @throws InvalidArgumentException При попытке сложить разные валюты.
      */
     public function add(self $other): self
@@ -87,6 +88,7 @@ final readonly class Money implements Stringable
 
     /**
      * Вычитание.
+     *
      * @throws InvalidArgumentException При разных валютах ИЛИ если результат < 0.
      */
     public function subtract(self $other): self
@@ -167,6 +169,6 @@ final readonly class Money implements Stringable
      */
     public function __toString(): string
     {
-        return number_format($this->getRubles(), 2, '.', ' ') . ' ' . $this->currency;
+        return number_format($this->getRubles(), 2, '.', ' ').' '.$this->currency;
     }
 }

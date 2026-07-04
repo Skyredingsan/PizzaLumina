@@ -22,19 +22,19 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:255', 'unique:products,name'],
+            'name' => ['required', 'string', 'max:255', 'unique:products,name'],
             'description' => ['required', 'string'],
-            'price'       => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
-            'weight'      => ['required', 'numeric', 'min:0.01', 'max:9999.99'],
-            'category'    => ['required', 'string', new Enum(ProductCategory::class)],
+            'price' => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
+            'weight' => ['required', 'numeric', 'min:0.01', 'max:9999.99'],
+            'category' => ['required', 'string', new Enum(ProductCategory::class)],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.unique'   => 'Продукт с таким названием уже существует.',
-            'price.min'     => 'Цена должна быть больше нуля.',
+            'name.unique' => 'Продукт с таким названием уже существует.',
+            'price.min' => 'Цена должна быть больше нуля.',
             'category.Illuminate\Validation\Rules\Enum' => 'Категория должна быть одной из: пицца, напиток.',
         ];
     }

@@ -14,7 +14,7 @@ class MeTest extends ApiTestCase
     public function test_authenticated_user_can_get_their_profile(): void
     {
         $user = User::factory()->create([
-            'name'  => 'Test Customer',
+            'name' => 'Test Customer',
             'phone' => '+79991234567',
         ]);
 

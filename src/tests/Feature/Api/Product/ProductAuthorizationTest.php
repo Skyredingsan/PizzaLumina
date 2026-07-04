@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\Product;
 
 use App\Modules\Product\Models\Product;
-use App\Modules\User\Enums\UserRole;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\Api\ApiTestCase;
 
@@ -54,7 +53,7 @@ class ProductAuthorizationTest extends ApiTestCase
 
         // Убедимся, что продукт не изменился
         $this->assertDatabaseHas('products', [
-            'id'   => $product->id,
+            'id' => $product->id,
             'name' => $product->name,
         ]);
     }
@@ -71,7 +70,7 @@ class ProductAuthorizationTest extends ApiTestCase
             ->assertStatus(Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas('products', [
-            'id'   => $product->id,
+            'id' => $product->id,
             'name' => $product->name,
         ]);
     }

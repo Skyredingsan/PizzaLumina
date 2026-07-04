@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Api\Product;
 
-use Tests\Feature\Api\ApiTestCase;
 use App\Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
+use Tests\Feature\Api\ApiTestCase;
 
 class ProductShowTest extends ApiTestCase
 {

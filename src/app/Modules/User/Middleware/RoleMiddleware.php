@@ -40,7 +40,7 @@ final class RoleMiddleware
         if (! in_array($userRole, $allowedRoles, true)) {
             return response()->json([
                 'message' => 'Доступ запрещён. Требуется роль: '
-                    . implode(', ', array_map(fn (UserRole $r) => $r->value, $allowedRoles)),
+                    .implode(', ', array_map(fn (UserRole $r) => $r->value, $allowedRoles)),
             ], Response::HTTP_FORBIDDEN);
         }
 

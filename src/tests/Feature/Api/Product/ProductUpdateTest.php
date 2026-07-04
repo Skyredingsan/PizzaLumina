@@ -15,11 +15,11 @@ class ProductUpdateTest extends ApiTestCase
         $product = Product::factory()->create();
 
         $updatedData = [
-            'name'        => 'Updated Pizza',
+            'name' => 'Updated Pizza',
             'description' => 'Updated description',
-            'price'       => '2500',
-            'weight'      => 500,
-            'category'    => $product->category->value,
+            'price' => '2500',
+            'weight' => 500,
+            'category' => $product->category->value,
         ];
 
         $response = $this->withToken($this->adminToken())
@@ -30,8 +30,8 @@ class ProductUpdateTest extends ApiTestCase
             ->assertJsonPath('data.price.amount', 250000);
 
         $this->assertDatabaseHas('products', [
-            'id'    => $product->id,
-            'name'  => 'Updated Pizza',
+            'id' => $product->id,
+            'name' => 'Updated Pizza',
             'price' => 250000,
         ]);
     }
@@ -39,7 +39,7 @@ class ProductUpdateTest extends ApiTestCase
     public function test_can_partially_update_product(): void
     {
         $product = Product::factory()->create([
-            'name'  => 'Original Name',
+            'name' => 'Original Name',
             'price' => 150000,  // 1500.00 руб
         ]);
 
@@ -53,7 +53,7 @@ class ProductUpdateTest extends ApiTestCase
 
         // Цена не должна была измениться
         $this->assertDatabaseHas('products', [
-            'id'    => $product->id,
+            'id' => $product->id,
             'price' => 150000,
         ]);
     }

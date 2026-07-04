@@ -25,7 +25,7 @@ class ProductStoreTest extends ApiTestCase
     {
         $payload = array_merge($this->getValidProductData(), [
             'price' => '1500.99',
-            'name'  => 'Пицца с дробной ценой',
+            'name' => 'Пицца с дробной ценой',
         ]);
 
         $response = $this->withToken($this->adminToken())

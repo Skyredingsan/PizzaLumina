@@ -22,11 +22,11 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['sometimes', 'string', 'max:255', 'unique:products,name'],
+            'name' => ['sometimes', 'string', 'max:255', 'unique:products,name'],
             'description' => ['sometimes', 'string'],
-            'price'       => ['sometimes', 'numeric', 'min:0.01', 'max:999999.99'],
-            'weight'      => ['sometimes', 'numeric', 'min:0.01', 'max:9999.99'],
-            'category'    => ['sometimes', 'string', new Enum(ProductCategory::class)],
+            'price' => ['sometimes', 'numeric', 'min:0.01', 'max:999999.99'],
+            'weight' => ['sometimes', 'numeric', 'min:0.01', 'max:9999.99'],
+            'category' => ['sometimes', 'string', new Enum(ProductCategory::class)],
         ];
     }
 }

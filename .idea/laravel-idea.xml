@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="InertiaPackage">
+    <option name="directoryPaths">
+      <list />
+    </option>
+  </component>
+  <component name="LaravelIdeaMainSettings">
+    <option name="frameworkFound" value="true" />
+    <option name="laravelBasePath" value="src" />
+    <option name="translation">
+      <LaravelTranslation>
+        <option name="defaultLanguageFromConfig" value="ru" />
+      </LaravelTranslation>
+    </option>
+  </component>
+</project>

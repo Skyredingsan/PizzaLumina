@@ -6,7 +6,9 @@ namespace Tests\Feature\Api\Auth;
 
 use App\Modules\User\Enums\UserRole;
 use App\Modules\User\Models\User;
+use App\Modules\User\Notifications\SendWelcomeSms;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Feature\Api\ApiTestCase;
 
@@ -15,10 +17,10 @@ class RegisterTest extends ApiTestCase
     public function test_can_register_with_name_phone_email_password(): void
     {
         $payload = [
-            'name'                  => 'Иван Иванов',
-            'phone'                 => '+79991234567',
-            'email'                 => 'ivan@example.com',
-            'password'              => 'Password@123',
+            'name' => 'Иван Иванов',
+            'phone' => '+79991234567',
+            'email' => 'ivan@example.com',
+            'password' => 'Password@123',
             'password_confirmation' => 'Password@123',
         ];
 
@@ -29,12 +31,11 @@ class RegisterTest extends ApiTestCase
                 'data' => ['token', 'expires_in'],
             ]);
 
-
         $this->assertDatabaseHas('users', [
-        'name'  => 'Иван Иванов',
-        'phone' => '+79991234567',
-        'email' => 'ivan@example.com',
-        'role'  => UserRole::Customer->value,
+            'name' => 'Иван Иванов',
+            'phone' => '+79991234567',
+            'email' => 'ivan@example.com',
+            'role' => UserRole::Customer->value,
         ]);
     }
 
@@ -61,10 +62,10 @@ class RegisterTest extends ApiTestCase
 
         $user = User::where('email', $payload['email'])->firstOrFail();
 
-        Notification::assertSentTo($user, \App\Modules\User\Notifications\SendWelcomeSms::class);
+        Notification::assertSentTo($user, SendWelcomeSms::class);
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('invalidRegistrationProvider')]
+    #[DataProvider('invalidRegistrationProvider')]
     public function test_register_validates_input(array $payload, string $errorField): void
     {
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
@@ -76,25 +77,25 @@ class RegisterTest extends ApiTestCase
     {
         $makeValid = function (): array {
             return [
-                'name'                  => 'Test User',
-                'phone'                 => '+7999' . random_int(1000000, 9999999),
-                'email'                 => 'test_' . uniqid() . '@example.com',
-                'password'              => 'Password@123',
+                'name' => 'Test User',
+                'phone' => '+7999'.random_int(1000000, 9999999),
+                'email' => 'test_'.uniqid().'@example.com',
+                'password' => 'Password@123',
                 'password_confirmation' => 'Password@123',
             ];
         };
 
         return [
-            'missing name'           => [array_merge($makeValid(), ['name' => null]), 'name'],
-            'name too short'         => [array_merge($makeValid(), ['name' => 'A']), 'name'],
-            'missing phone'          => [array_merge($makeValid(), ['phone' => null]), 'phone'],
-            'phone bad format'       => [array_merge($makeValid(), ['phone' => '89991234567']), 'phone'],
-            'phone too short'        => [array_merge($makeValid(), ['phone' => '+7123']), 'phone'],
-            'missing email'          => [array_merge($makeValid(), ['email' => null]), 'email'],
-            'invalid email'          => [array_merge($makeValid(), ['email' => 'not-email']), 'email'],
-            'missing password'       => [array_merge($makeValid(), ['password' => null]), 'password'],
+            'missing name' => [array_merge($makeValid(), ['name' => null]), 'name'],
+            'name too short' => [array_merge($makeValid(), ['name' => 'A']), 'name'],
+            'missing phone' => [array_merge($makeValid(), ['phone' => null]), 'phone'],
+            'phone bad format' => [array_merge($makeValid(), ['phone' => '89991234567']), 'phone'],
+            'phone too short' => [array_merge($makeValid(), ['phone' => '+7123']), 'phone'],
+            'missing email' => [array_merge($makeValid(), ['email' => null]), 'email'],
+            'invalid email' => [array_merge($makeValid(), ['email' => 'not-email']), 'email'],
+            'missing password' => [array_merge($makeValid(), ['password' => null]), 'password'],
             'password not confirmed' => [array_merge($makeValid(), ['password_confirmation' => 'different@123']), 'password'],
-            'password too weak'      => [array_merge($makeValid(), ['password' => '123', 'password_confirmation' => '123']), 'password'],
+            'password too weak' => [array_merge($makeValid(), ['password' => '123', 'password_confirmation' => '123']), 'password'],
         ];
     }
 
@@ -124,22 +125,22 @@ class RegisterTest extends ApiTestCase
     {
         $payload = array_merge($this->validRegisterPayload(), ['role' => 'admin']);
 
-            $this->postJson($this->getApiUrl('/auth/register'), $payload)
-                ->assertStatus(Response::HTTP_CREATED);
+        $this->postJson($this->getApiUrl('/auth/register'), $payload)
+            ->assertStatus(Response::HTTP_CREATED);
 
         $this->assertDatabaseHas('users', [
             'email' => $payload['email'],
-            'role'  => UserRole::Customer->value,
+            'role' => UserRole::Customer->value,
         ]);
     }
 
     private function validRegisterPayload(): array
     {
         return [
-            'name'                  => 'Test User',
-            'phone'                 => '+7999' . random_int(1000000, 9999999),
-            'email'                 => 'test_' . uniqid() . '@example.com',
-            'password'              => 'Password@123',
+            'name' => 'Test User',
+            'phone' => '+7999'.random_int(1000000, 9999999),
+            'email' => 'test_'.uniqid().'@example.com',
+            'password' => 'Password@123',
             'password_confirmation' => 'Password@123',
         ];
     }

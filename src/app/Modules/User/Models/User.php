@@ -5,21 +5,22 @@ declare(strict_types=1);
 namespace App\Modules\User\Models;
 
 use App\Modules\User\Enums\UserRole;
-use App\Modules\User\Notifications\SendWelcomeSms;
+use Carbon\Carbon;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
- * @property int              $id
- * @property string           $name
- * @property string           $email
- * @property string|null      $phone     Телефон в формате E.164 (+79991234567)
- * @property string           $password
- * @property UserRole         $role
- * @property \Carbon\Carbon   $created_at
- * @property \Carbon\Carbon   $updated_at
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string|null $phone Телефон в формате E.164 (+79991234567)
+ * @property string $password
+ * @property UserRole $role
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class User extends Authenticatable implements JWTSubject
 {
@@ -31,7 +32,6 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'phone',
         'password',
-        'role',
     ];
 
     protected $hidden = [
@@ -43,10 +43,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'role'              => UserRole::class,
-            'created_at'        => 'datetime',
-            'updated_at'        => 'datetime',
+            'password' => 'hashed',
+            'role' => UserRole::class,
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 
@@ -57,8 +57,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims(): array
     {
+        $role = $this->role ?? UserRole::Customer;
+
         return [
-            'role' => $this->role->value,
+            'role' => $role->value,
         ];
     }
 
@@ -69,6 +71,6 @@ class User extends Authenticatable implements JWTSubject
 
     protected static function newFactory()
     {
-        return \Database\Factories\UserFactory::new();
+        return UserFactory::new();
     }
 }

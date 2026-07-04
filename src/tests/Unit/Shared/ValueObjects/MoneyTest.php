@@ -8,7 +8,6 @@ use App\Shared\ValueObjects\Money;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-
 final class MoneyTest extends TestCase
 {
     // ─── Создание ────────────────────────────────────────────────────
