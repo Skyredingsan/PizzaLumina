@@ -62,6 +62,7 @@ jobs:
 
     env:
       APP_ENV: testing
+      APP_URL: http://localhost
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
@@ -69,6 +70,10 @@ jobs:
       DB_USERNAME: laravel
       DB_PASSWORD: secret
       REDIS_HOST: 127.0.0.1
+      REDIS_PASSWORD: null
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
 
     defaults:
       run:
@@ -101,9 +106,9 @@ jobs:
 
       - name: Prepare environment
         run: |
-          cp .env.example .env -v
-          php artisan key:generate -v
-          php artisan jwt:secret --force -v
+          cp .env.example .env
+          php artisan key:generate --force
+          php artisan jwt:secret --force
 
       - name: Run migrations
         run: php artisan migrate --force
