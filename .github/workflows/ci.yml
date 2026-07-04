@@ -62,14 +62,12 @@ jobs:
 
     env:
       APP_ENV: testing
-      APP_KEY: base64:Z3JlZyBoZXJlIGEgYmFzZTY0IGtleQ==
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
       DB_DATABASE: pizzalumina_test
       DB_USERNAME: laravel
       DB_PASSWORD: secret
-      JWT_SECRET: test-secret-for-ci-only
       REDIS_HOST: 127.0.0.1
 
     defaults:
@@ -103,8 +101,9 @@ jobs:
 
       - name: Prepare environment
         run: |
-          cp .env.example .env
-          php artisan config:clear
+          cp .env.example .env -v
+          php artisan key:generate -v
+          php artisan jwt:secret --force -v
 
       - name: Run migrations
         run: php artisan migrate --force
