@@ -75,15 +75,13 @@ class RegisterTest extends ApiTestCase
 
     public static function invalidRegistrationProvider(): array
     {
-        $makeValid = function (): array {
-            return [
-                'name' => 'Test User',
-                'phone' => '+7999'.random_int(1000000, 9999999),
-                'email' => 'test_'.uniqid().'@example.com',
-                'password' => 'Password@123',
-                'password_confirmation' => 'Password@123',
-            ];
-        };
+        $makeValid = (fn (): array => [
+            'name' => 'Test User',
+            'phone' => '+7999'.random_int(1000000, 9999999),
+            'email' => 'test_'.uniqid().'@example.com',
+            'password' => 'Password@123',
+            'password_confirmation' => 'Password@123',
+        ]);
 
         return [
             'missing name' => [array_merge($makeValid(), ['name' => null]), 'name'],

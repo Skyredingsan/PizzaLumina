@@ -29,14 +29,14 @@ class ProductFactory extends Factory
 
     public function pizza(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'category' => ProductCategory::Pizza,
         ]);
     }
 
     public function drink(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'category' => ProductCategory::Drink,
         ]);
     }

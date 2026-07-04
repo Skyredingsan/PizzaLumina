@@ -12,7 +12,7 @@ class LoginTest extends ApiTestCase
 {
     public function test_can_login_with_valid_credentials(): void
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'email' => 'login@example.com',
             'password' => 'Password@123',
         ]);
@@ -26,7 +26,7 @@ class LoginTest extends ApiTestCase
             ->assertJsonStructure([
                 'data' => ['token', 'expires_in'],
             ])
-            ->assertJsonPath('data.token', fn ($t) => is_string($t) && $t !== '');
+            ->assertJsonPath('data.token', fn ($t): bool => is_string($t) && $t !== '');
     }
 
     public function test_login_returns_token_for_authenticated_user(): void

@@ -21,8 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Notification::extend('sms', static function (Container $app): SmsChannel {
-            return $app->make(SmsChannel::class);
-        });
+        Notification::extend('sms', static fn (Container $app): SmsChannel => $app->make(SmsChannel::class));
     }
 }

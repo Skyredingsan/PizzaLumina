@@ -9,6 +9,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 final class RoleMiddleware
 {
@@ -16,7 +17,7 @@ final class RoleMiddleware
     {
         try {
             $roleValue = Auth::guard('api')->payload()->get('role');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return response()->json([
                 'message' => 'Неавторизованный запрос. Укажите валидный Bearer-токен.',
             ], Response::HTTP_UNAUTHORIZED);
@@ -33,7 +34,7 @@ final class RoleMiddleware
         }
 
         $allowedRoles = array_map(
-            static fn (string $role): UserRole => UserRole::from($role),
+            UserRole::from(...),
             $roles,
         );
 

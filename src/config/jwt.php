@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Tymon\JWTAuth\Providers\Auth\Illuminate;
 use Tymon\JWTAuth\Providers\JWT\Lcobucci;
 use Tymon\JWTAuth\Providers\JWT\Provider;

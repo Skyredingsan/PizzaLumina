@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\User\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\User\Models\User;
 use App\Modules\User\Requests\LoginRequest;
 use App\Modules\User\Requests\RegisterRequest;
 use App\Modules\User\Resources\UserResource;
@@ -55,7 +56,7 @@ final class AuthController extends Controller
     {
         $user = $this->auth->currentUser();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return response()->json([
                 'message' => 'Пользователь не найден.',
             ], Response::HTTP_UNAUTHORIZED);
