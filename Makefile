@@ -1,4 +1,4 @@
-.PHONY: up down build shell logs restart composer-install artisan migrate test
+.PHONY: up down build shell logs restart composer-install artisan migrate test test-db-create test-db-drop test-db-reset fresh clean
 
 up:
 	docker compose up -d
@@ -27,15 +27,14 @@ artisan:
 migrate:
 	docker compose exec php php artisan migrate
 
-test:
+
+test: test-db-reset
 	docker compose exec php php artisan test
 
-test-db-create:
-	docker compose exec postgres psql -U laravel -d pizzalumina -c "CREATE DATABASE pizzalumina-test;"
-
-test-db-reset:
-	docker compose exec postgres psql -U laravel -d pizzalumina -c "DROP DATABASE IF EXISTS pizzalumina-test;"
-	$(MAKE) test-db-create
+test-db-reset: test-db-create
+	docker compose exec postgres psql -U laravel -d postgres -c "DROP DATABASE IF EXISTS pizzalumina_test;"
+	docker compose exec postgres psql -U laravel -d postgres -c "CREATE DATABASE pizzalumina_test;"
+	docker compose exec php php artisan migrate --database=pgsql --env=testing
 
 fresh: clean build up
 	docker compose exec php php artisan migrate:fresh --seed
