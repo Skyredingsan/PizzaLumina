@@ -1,4 +1,4 @@
-.PHONY: up down build shell logs restart composer-install artisan migrate test test-db-create test-db-drop test-db-reset fresh clean cs-check cs-fix phpstan phpstan-baseline rector rector-dry ci-quality
+.PHONY: up down build shell logs restart composer-install artisan migrate test test-db-create test-db-drop test-db-reset fresh clean cs cs-dr phpstan phpstan-baseline rector rector-dr quality quality-dr
 
 up:
 	docker compose up -d
@@ -43,11 +43,11 @@ clean:
 	docker compose down -v
 	rm -rf src/vendor src/bootstrap/cache/*
 
-cs-check:
-	docker compose exec php vendor/bin/pint --test
+cs:
+	docker compose exec php vendor/bin/php-cs-fixer fix
 
-cs-fix:
-	docker compose exec php vendor/bin/pint
+cs-dr:
+	docker compose exec php vendor/bin/php-cs-fixer fix --dry-run --diff
 
 phpstan:
 	docker compose exec php vendor/bin/phpstan analyse --no-progress
@@ -58,8 +58,11 @@ phpstan-baseline:
 rector:
 	docker compose exec php vendor/bin/rector process
 
-rector-dry:
+rector-dr:
 	docker compose exec php vendor/bin/rector process --dry-run
 
-ci-quality: cs-check phpstan rector-dry test
-	@echo "✓ Все проверки пройдены"
+quality: cs rector
+	make test
+
+quality-dr: cs-dr phpstan rector-dr
+	make test

@@ -11,5 +11,6 @@ final readonly class RegisterInput
         public string $phone,
         public string $email,
         public string $password,
-    ) {}
+    ) {
+    }
 }

@@ -11,7 +11,8 @@ class SendWelcomeSms extends Notification
 {
     public function __construct(
         private readonly string $name,
-    ) {}
+    ) {
+    }
 
     public function via(User $notifiable): array
     {
