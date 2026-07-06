@@ -22,7 +22,7 @@ final class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $token = $this->auth->register($request->toRegisterInput());
+        $token = $this->auth->register(input: $request->toRegisterInput());
 
         return $this->respondWithToken(
             token: $token,
@@ -33,8 +33,8 @@ final class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $token = $this->auth->login(
-            $request->string('email')->toString(),
-            $request->string('password')->toString(),
+            email: $request->string(key: 'email')->toString(),
+            password: $request->string(key: 'password')->toString(),
         );
 
         if ($token === null) {

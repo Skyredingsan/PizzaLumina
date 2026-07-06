@@ -32,7 +32,7 @@ class RegisterRequest extends FormRequest
             'password' => [
                 'required',
                 'confirmed',
-                Password::min(8)->mixedCase()->numbers()->symbols(),
+                Password::min(size: 8)->mixedCase()->numbers()->symbols(),
             ],
         ];
     }
@@ -50,10 +50,10 @@ class RegisterRequest extends FormRequest
     public function toRegisterInput(): RegisterInput
     {
         return new RegisterInput(
-            name: $this->string('name')->toString(),
-            phone: $this->string('phone')->toString(),
-            email: $this->string('email')->toString(),
-            password: $this->string('password')->toString(),
+            name: $this->string(key: 'name')->toString(),
+            phone: $this->string(key: 'phone')->toString(),
+            email: $this->string(key: 'email')->toString(),
+            password: $this->string(key: 'password')->toString(),
         );
     }
 }

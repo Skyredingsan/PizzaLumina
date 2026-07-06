@@ -26,7 +26,7 @@ class StoreProductRequest extends FormRequest
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
             'weight' => ['required', 'numeric', 'min:0.01', 'max:9999.99'],
-            'category' => ['required', 'string', new Enum(ProductCategory::class)],
+            'category' => ['required', 'string', new Enum(type: ProductCategory::class)],
         ];
     }
 

@@ -16,17 +16,17 @@ class ProductShowTest extends ApiTestCase
 
         $response = $this->getJson($this->getApiUrl("/products/{$product->id}"));
 
-        $response->assertStatus(Response::HTTP_OK)
-            ->assertJsonPath('data.id', $product->id)
-            ->assertJsonPath('data.name', $product->name)
-            ->assertJsonPath('data.price.amount', $product->price->getAmount())
-            ->assertJsonPath('data.price.currency', 'RUB');
+        $response->assertStatus(status: Response::HTTP_OK)
+            ->assertJsonPath(path: 'data.id', expect: $product->id)
+            ->assertJsonPath(path: 'data.name', expect: $product->name)
+            ->assertJsonPath(path: 'data.price.amount', expect: $product->price->getAmount())
+            ->assertJsonPath(path: 'data.price.currency', expect: 'RUB');
     }
 
     public function test_returns_not_found_for_invalid_product(): void
     {
         $response = $this->getJson($this->getApiUrl('/products/999999'));
 
-        $response->assertStatus(Response::HTTP_NOT_FOUND);
+        $response->assertStatus(status: Response::HTTP_NOT_FOUND);
     }
 }

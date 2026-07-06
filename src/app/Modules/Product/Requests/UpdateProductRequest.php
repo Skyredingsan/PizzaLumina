@@ -26,7 +26,7 @@ class UpdateProductRequest extends FormRequest
             'description' => ['sometimes', 'string'],
             'price' => ['sometimes', 'numeric', 'min:0.01', 'max:999999.99'],
             'weight' => ['sometimes', 'numeric', 'min:0.01', 'max:9999.99'],
-            'category' => ['sometimes', 'string', new Enum(ProductCategory::class)],
+            'category' => ['sometimes', 'string', new Enum(type: ProductCategory::class)],
         ];
     }
 }

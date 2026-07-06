@@ -21,22 +21,22 @@ class ProductFactory extends Factory
         return [
             'name' => fake()->unique()->word(),
             'description' => fake()->sentence(),
-            'price' => Money::fromRubles(fake()->numberBetween(100, 10000)),
-            'weight' => fake()->numberBetween(100, 5000),
+            'price' => Money::fromRubles(rubles: fake()->numberBetween(int1: 100, int2: 10000)),
+            'weight' => fake()->numberBetween(int1: 100, int2: 5000),
             'category' => fake()->randomElement(ProductCategory::cases()),
         ];
     }
 
     public function pizza(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(state: fn (array $attributes): array => [
             'category' => ProductCategory::Pizza,
         ]);
     }
 
     public function drink(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(state: fn (array $attributes): array => [
             'category' => ProductCategory::Drink,
         ]);
     }

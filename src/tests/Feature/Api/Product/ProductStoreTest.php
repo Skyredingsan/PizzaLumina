@@ -17,8 +17,8 @@ class ProductStoreTest extends ApiTestCase
         $response = $this->withToken($this->adminToken())
             ->postJson($this->getApiUrl('/products'), $payload);
 
-        $response->assertStatus(Response::HTTP_CREATED)
-            ->assertJsonPath('data.name', $payload['name']);
+        $response->assertStatus(status: Response::HTTP_CREATED)
+            ->assertJsonPath(path: 'data.name', expect: $payload['name']);
     }
 
     public function test_can_create_product_with_fractional_price(): void
@@ -31,9 +31,9 @@ class ProductStoreTest extends ApiTestCase
         $response = $this->withToken($this->adminToken())
             ->postJson($this->getApiUrl('/products'), $payload);
 
-        $response->assertStatus(Response::HTTP_CREATED)
-            ->assertJsonPath('data.price.amount', 150099)
-            ->assertJsonPath('data.price.rubles', 1500.99);
+        $response->assertStatus(status: Response::HTTP_CREATED)
+            ->assertJsonPath(path: 'data.price.amount', expect: 150099)
+            ->assertJsonPath(path: 'data.price.rubles', expect: 1500.99);
 
         $this->assertDatabaseHas('products', ['price' => 150099]);
     }
@@ -45,8 +45,8 @@ class ProductStoreTest extends ApiTestCase
 
         $this->withToken($this->adminToken())
             ->postJson($this->getApiUrl('/products'), $payload)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['name']);
+            ->assertStatus(status: Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(errors: ['name']);
     }
 
     public function test_cannot_create_product_with_duplicate_name(): void
@@ -58,7 +58,7 @@ class ProductStoreTest extends ApiTestCase
 
         $this->withToken($this->adminToken())
             ->postJson($this->getApiUrl('/products'), $payload)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['name']);
+            ->assertStatus(status: Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(errors: ['name']);
     }
 }

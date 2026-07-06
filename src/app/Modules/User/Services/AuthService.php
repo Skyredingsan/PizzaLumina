@@ -21,9 +21,9 @@ final class AuthService
             'password' => $input->password,
         ]);
 
-        $user->notify(new SendWelcomeSms($user->name));
+        $user->notify(new SendWelcomeSms(name: $user->name));
 
-        return $this->guard()->login($user);
+        return $this->guard()->login(user: $user);
     }
 
     /**
@@ -31,7 +31,7 @@ final class AuthService
      */
     public function login(string $email, string $password): ?string
     {
-        $token = $this->guard()->attempt([
+        $token = $this->guard()->attempt(credentials: [
             'email' => $email,
             'password' => $password,
         ]);

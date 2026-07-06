@@ -13,7 +13,7 @@ class MeTest extends ApiTestCase
 {
     public function test_authenticated_user_can_get_their_profile(): void
     {
-        $user = User::factory()->create([
+        $user = User::factory()->create(attributes: [
             'name' => 'Test Customer',
             'phone' => '+79991234567',
         ]);
@@ -23,22 +23,22 @@ class MeTest extends ApiTestCase
         $this->withToken($token)
             ->getJson($this->getApiUrl('/auth/me'))
             ->assertOk()
-            ->assertJsonPath('data.id', $user->id)
-            ->assertJsonPath('data.name', 'Test Customer')
-            ->assertJsonPath('data.phone', '+79991234567')
-            ->assertJsonPath('data.role', UserRole::Customer->value);
+            ->assertJsonPath(path: 'data.id', expect: $user->id)
+            ->assertJsonPath(path: 'data.name', expect: 'Test Customer')
+            ->assertJsonPath(path: 'data.phone', expect: '+79991234567')
+            ->assertJsonPath(path: 'data.role', expect: UserRole::Customer->value);
     }
 
     public function test_me_without_token_returns_unauthorized(): void
     {
         $this->getJson($this->getApiUrl('/auth/me'))
-            ->assertStatus(Response::HTTP_UNAUTHORIZED);
+            ->assertStatus(status: Response::HTTP_UNAUTHORIZED);
     }
 
     public function test_me_with_invalid_token_returns_unauthorized(): void
     {
         $this->withToken('invalid.token.here')
             ->getJson($this->getApiUrl('/auth/me'))
-            ->assertStatus(Response::HTTP_UNAUTHORIZED);
+            ->assertStatus(status: Response::HTTP_UNAUTHORIZED);
     }
 }

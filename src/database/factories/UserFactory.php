@@ -27,35 +27,35 @@ class UserFactory extends Factory
             'phone' => fake()->unique()->numerify('+7##########'),  // +7 и 10 цифр
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'remember_token' => Str::random(length: 10),
             'role' => UserRole::Customer->value,
         ];
     }
 
     public function admin(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(state: fn (array $attributes): array => [
             'role' => UserRole::Admin->value,
         ]);
     }
 
     public function customer(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(state: fn (array $attributes): array => [
             'role' => UserRole::Customer->value,
         ]);
     }
 
     public function guest(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(state: fn (array $attributes): array => [
             'role' => UserRole::Guest->value,
         ]);
     }
 
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes): array => [
+        return $this->state(state: fn (array $attributes): array => [
             'email_verified_at' => null,
         ]);
     }

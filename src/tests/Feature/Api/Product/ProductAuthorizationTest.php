@@ -25,21 +25,21 @@ class ProductAuthorizationTest extends ApiTestCase
     public function test_guest_cannot_create_product(): void
     {
         $this->postJson($this->getApiUrl('/products'), $this->getValidProductData())
-            ->assertStatus(Response::HTTP_UNAUTHORIZED);
+            ->assertStatus(status: Response::HTTP_UNAUTHORIZED);
     }
 
     public function test_customer_cannot_create_product(): void
     {
         $this->withToken($this->customerToken())
             ->postJson($this->getApiUrl('/products'), $this->getValidProductData())
-            ->assertStatus(Response::HTTP_FORBIDDEN);
+            ->assertStatus(status: Response::HTTP_FORBIDDEN);
     }
 
     public function test_admin_can_create_product(): void
     {
         $this->withToken($this->adminToken())
             ->postJson($this->getApiUrl('/products'), $this->getValidProductData())
-            ->assertStatus(Response::HTTP_CREATED);
+            ->assertStatus(status: Response::HTTP_CREATED);
     }
 
     public function test_guest_cannot_update_product(): void
@@ -49,7 +49,7 @@ class ProductAuthorizationTest extends ApiTestCase
         $this->patchJson(
             $this->getApiUrl("/products/{$product->id}"),
             ['name' => 'Hacked']
-        )->assertStatus(Response::HTTP_UNAUTHORIZED);
+        )->assertStatus(status: Response::HTTP_UNAUTHORIZED);
 
         // Убедимся, что продукт не изменился
         $this->assertDatabaseHas('products', [
@@ -67,7 +67,7 @@ class ProductAuthorizationTest extends ApiTestCase
                 $this->getApiUrl("/products/{$product->id}"),
                 ['name' => 'Hacked']
             )
-            ->assertStatus(Response::HTTP_FORBIDDEN);
+            ->assertStatus(status: Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
@@ -84,8 +84,8 @@ class ProductAuthorizationTest extends ApiTestCase
                 $this->getApiUrl("/products/{$product->id}"),
                 ['name' => 'Updated Name']
             )
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJsonPath('data.name', 'Updated Name');
+            ->assertStatus(status: Response::HTTP_OK)
+            ->assertJsonPath(path: 'data.name', expect: 'Updated Name');
     }
 
     public function test_guest_cannot_delete_product(): void
@@ -93,7 +93,7 @@ class ProductAuthorizationTest extends ApiTestCase
         $product = Product::factory()->create();
 
         $this->deleteJson($this->getApiUrl("/products/{$product->id}"))
-            ->assertStatus(Response::HTTP_UNAUTHORIZED);
+            ->assertStatus(status: Response::HTTP_UNAUTHORIZED);
 
         $this->assertDatabaseHas('products', ['id' => $product->id]);
     }
@@ -104,7 +104,7 @@ class ProductAuthorizationTest extends ApiTestCase
 
         $this->withToken($this->customerToken())
             ->deleteJson($this->getApiUrl("/products/{$product->id}"))
-            ->assertStatus(Response::HTTP_FORBIDDEN);
+            ->assertStatus(status: Response::HTTP_FORBIDDEN);
 
         $this->assertDatabaseHas('products', ['id' => $product->id]);
     }
@@ -115,18 +115,18 @@ class ProductAuthorizationTest extends ApiTestCase
 
         $this->withToken($this->adminToken())
             ->deleteJson($this->getApiUrl("/products/{$product->id}"))
-            ->assertStatus(Response::HTTP_NO_CONTENT);
+            ->assertStatus(status: Response::HTTP_NO_CONTENT);
 
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }
 
     public function test_guest_can_list_products(): void
     {
-        Product::factory()->count(3)->create();
+        Product::factory()->count(count: 3)->create();
 
         $this->getJson($this->getApiUrl('/products'))
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJsonCount(3, 'data');
+            ->assertStatus(status: Response::HTTP_OK)
+            ->assertJsonCount(count: 3, key: 'data');
     }
 
     public function test_guest_can_show_product(): void
@@ -134,7 +134,7 @@ class ProductAuthorizationTest extends ApiTestCase
         $product = Product::factory()->create();
 
         $this->getJson($this->getApiUrl("/products/{$product->id}"))
-            ->assertStatus(Response::HTTP_OK)
-            ->assertJsonPath('data.id', $product->id);
+            ->assertStatus(status: Response::HTTP_OK)
+            ->assertJsonPath(path: 'data.id', expect: $product->id);
     }
 }

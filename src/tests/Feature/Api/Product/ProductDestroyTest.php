@@ -16,7 +16,7 @@ class ProductDestroyTest extends ApiTestCase
 
         $this->withToken($this->adminToken())
             ->deleteJson($this->getApiUrl("/products/{$product->id}"))
-            ->assertStatus(Response::HTTP_NO_CONTENT);
+            ->assertStatus(status: Response::HTTP_NO_CONTENT);
 
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }
@@ -25,6 +25,6 @@ class ProductDestroyTest extends ApiTestCase
     {
         $this->withToken($this->adminToken())
             ->deleteJson($this->getApiUrl('/products/999999'))
-            ->assertStatus(Response::HTTP_NOT_FOUND);
+            ->assertStatus(status: Response::HTTP_NOT_FOUND);
     }
 }

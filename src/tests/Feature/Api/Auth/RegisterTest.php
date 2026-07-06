@@ -26,8 +26,8 @@ class RegisterTest extends ApiTestCase
 
         $response = $this->postJson($this->getApiUrl('/auth/register'), $payload);
 
-        $response->assertStatus(Response::HTTP_CREATED)
-            ->assertJsonStructure([
+        $response->assertStatus(status: Response::HTTP_CREATED)
+            ->assertJsonStructure(structure: [
                 'data' => ['token', 'expires_in'],
             ]);
 
@@ -44,12 +44,12 @@ class RegisterTest extends ApiTestCase
         $payload = $this->validRegisterPayload();
 
         $token = $this->postJson($this->getApiUrl('/auth/register'), $payload)
-            ->json('data.token');
+            ->json(key: 'data.token');
 
         $this->withToken($token)
             ->getJson($this->getApiUrl('/auth/me'))
             ->assertOk()
-            ->assertJsonPath('data.email', $payload['email']);
+            ->assertJsonPath(path: 'data.email', expect: $payload['email']);
     }
 
     public function test_register_sends_welcome_sms(): void
@@ -69,15 +69,15 @@ class RegisterTest extends ApiTestCase
     public function test_register_validates_input(array $payload, string $errorField): void
     {
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors([$errorField]);
+            ->assertStatus(status: Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(errors: [$errorField]);
     }
 
     public static function invalidRegistrationProvider(): array
     {
         $makeValid = (fn (): array => [
             'name' => 'Test User',
-            'phone' => '+7999'.random_int(1000000, 9999999),
+            'phone' => '+7999'.random_int(min: 1000000, max: 9999999),
             'email' => 'test_'.uniqid().'@example.com',
             'password' => 'Password@123',
             'password_confirmation' => 'Password@123',
@@ -99,24 +99,24 @@ class RegisterTest extends ApiTestCase
 
     public function test_register_rejects_duplicate_email(): void
     {
-        User::factory()->create(['email' => 'taken@example.com']);
+        User::factory()->create(attributes: ['email' => 'taken@example.com']);
 
         $payload = array_merge($this->validRegisterPayload(), ['email' => 'taken@example.com']);
 
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['email']);
+            ->assertStatus(status: Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(errors: ['email']);
     }
 
     public function test_register_rejects_duplicate_phone(): void
     {
-        User::factory()->create(['phone' => '+79990000000']);
+        User::factory()->create(attributes: ['phone' => '+79990000000']);
 
         $payload = array_merge($this->validRegisterPayload(), ['phone' => '+79990000000']);
 
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
-            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrors(['phone']);
+            ->assertStatus(status: Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors(errors: ['phone']);
     }
 
     public function test_cannot_register_as_admin(): void
@@ -124,7 +124,7 @@ class RegisterTest extends ApiTestCase
         $payload = array_merge($this->validRegisterPayload(), ['role' => 'admin']);
 
         $this->postJson($this->getApiUrl('/auth/register'), $payload)
-            ->assertStatus(Response::HTTP_CREATED);
+            ->assertStatus(status: Response::HTTP_CREATED);
 
         $this->assertDatabaseHas('users', [
             'email' => $payload['email'],
@@ -136,7 +136,7 @@ class RegisterTest extends ApiTestCase
     {
         return [
             'name' => 'Test User',
-            'phone' => '+7999'.random_int(1000000, 9999999),
+            'phone' => '+7999'.random_int(min: 1000000, max: 9999999),
             'email' => 'test_'.uniqid().'@example.com',
             'password' => 'Password@123',
             'password_confirmation' => 'Password@123',

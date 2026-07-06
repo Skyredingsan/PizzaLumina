@@ -25,7 +25,7 @@ final class MoneyCast implements CastsAttributes
             return null;
         }
 
-        return Money::fromCents((int) $value);
+        return Money::fromCents(cents: (int) $value);
     }
 
     /**
@@ -41,16 +41,16 @@ final class MoneyCast implements CastsAttributes
             return $value->getAmount();
         }
 
-        if (is_int($value)) {
+        if (is_int(value: $value)) {
             return $value;
         }
 
-        if (is_numeric($value)) {
-            return Money::fromRubles((float) $value)->getAmount();
+        if (is_numeric(value: $value)) {
+            return Money::fromRubles(rubles: (float) $value)->getAmount();
         }
 
         throw new InvalidArgumentException(
-            'Cannot cast value to Money. Expected Money|int|numeric, got: '.get_debug_type($value)
+            message: 'Cannot cast value to Money. Expected Money|int|numeric, got: '.get_debug_type(value: $value)
         );
     }
 }

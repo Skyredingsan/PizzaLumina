@@ -14,15 +14,16 @@
         "barryvdh/laravel-ide-helper": "^3.7",
         "driftingly/rector-laravel": "^2.5",
         "fakerphp/faker": "^1.23",
+        "friendsofphp/php-cs-fixer": "^3.0",
         "larastan/larastan": "^3.0",
         "laravel/pail": "^1.1",
-        "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.1",
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^12.0",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "savinmikhail/add_named_arguments_rector": "^0.1.23"
     },
     "autoload": {
         "psr-4": {

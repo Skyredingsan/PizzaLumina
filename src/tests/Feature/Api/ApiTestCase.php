@@ -36,7 +36,7 @@ abstract class ApiTestCase extends TestCase
     protected function createUser(UserRole $role = UserRole::Customer, array $overrides = []): User
     {
         return User::factory()
-            ->state(array_merge(['role' => $role->value], $overrides))
+            ->state(state: array_merge(['role' => $role->value], $overrides))
             ->create();
     }
 

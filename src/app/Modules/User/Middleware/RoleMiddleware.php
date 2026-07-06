@@ -24,7 +24,7 @@ final class RoleMiddleware
         }
 
         $userRole = $roleValue !== null
-            ? UserRole::tryFrom($roleValue)
+            ? UserRole::tryFrom(value: $roleValue)
             : null;
 
         if ($userRole === null) {
@@ -34,14 +34,14 @@ final class RoleMiddleware
         }
 
         $allowedRoles = array_map(
-            UserRole::from(...),
-            $roles,
+            callback: UserRole::from(...),
+            array: $roles,
         );
 
-        if (! in_array($userRole, $allowedRoles, true)) {
+        if (! in_array(needle: $userRole, haystack: $allowedRoles, strict: true)) {
             return response()->json([
                 'message' => 'Доступ запрещён. Требуется роль: '
-                    .implode(', ', array_map(fn (UserRole $r) => $r->value, $allowedRoles)),
+                    .implode(separator: ', ', array: array_map(callback: fn (UserRole $r) => $r->value, array: $allowedRoles)),
             ], Response::HTTP_FORBIDDEN);
         }
 
