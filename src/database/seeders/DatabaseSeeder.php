@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Modules\User\Enums\UserRole;
@@ -13,9 +15,9 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserSeeder::class);
 
         User::factory()->create([
-            'name'  => 'Test Customer',
+            'name' => 'Test Customer',
             'email' => 'customer@pizzalumina.test',
-            'role'  => UserRole::Customer,
+            'role' => UserRole::Customer,
         ]);
     }
 }

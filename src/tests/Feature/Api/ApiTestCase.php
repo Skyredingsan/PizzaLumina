@@ -8,6 +8,7 @@ use App\Modules\Product\Enums\ProductCategory;
 use App\Modules\User\Enums\UserRole;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 abstract class ApiTestCase extends TestCase
@@ -18,31 +19,31 @@ abstract class ApiTestCase extends TestCase
 
     protected function getApiUrl(string $path): string
     {
-        return $this->apiBase . $path;
+        return $this->apiBase.$path;
     }
 
     protected function getValidProductData(): array
     {
         return [
-            'name'        => 'Test Pizza ' . uniqid(),
+            'name' => 'Test Pizza '.uniqid(),
             'description' => 'A delicious test pizza.',
-            'price'       => '1500',
-            'weight'      => 450,
-            'category'    => ProductCategory::Pizza->value,
+            'price' => '1500',
+            'weight' => 450,
+            'category' => ProductCategory::Pizza->value,
         ];
     }
 
     protected function createUser(UserRole $role = UserRole::Customer, array $overrides = []): User
     {
         return User::factory()
-            ->state(array_merge(['role' => $role->value], $overrides))
+            ->state(state: array_merge(['role' => $role->value], $overrides))
             ->create();
     }
 
     protected function getTokenForUser(User $user): string
     {
-        return \Illuminate\Support\Facades\Auth::guard('api')->attempt([
-            'email'    => $user->email,
+        return Auth::guard('api')->attempt([
+            'email' => $user->email,
             'password' => 'password',
         ]);
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -129,8 +131,8 @@ return [
 
         'sms' => [
             'driver' => 'single',
-            'path'   => storage_path('logs/sms.log'),
-            'level'  => 'info',
+            'path' => storage_path('logs/sms.log'),
+            'level' => 'info',
         ],
     ],
 

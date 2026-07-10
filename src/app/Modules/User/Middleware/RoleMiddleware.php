@@ -9,6 +9,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 final class RoleMiddleware
 {
@@ -16,14 +17,14 @@ final class RoleMiddleware
     {
         try {
             $roleValue = Auth::guard('api')->payload()->get('role');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return response()->json([
                 'message' => 'Неавторизованный запрос. Укажите валидный Bearer-токен.',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
         $userRole = $roleValue !== null
-            ? UserRole::tryFrom($roleValue)
+            ? UserRole::tryFrom(value: $roleValue)
             : null;
 
         if ($userRole === null) {
@@ -33,14 +34,14 @@ final class RoleMiddleware
         }
 
         $allowedRoles = array_map(
-            static fn (string $role): UserRole => UserRole::from($role),
-            $roles,
+            callback: UserRole::from(...),
+            array: $roles,
         );
 
-        if (! in_array($userRole, $allowedRoles, true)) {
+        if (! in_array(needle: $userRole, haystack: $allowedRoles, strict: true)) {
             return response()->json([
                 'message' => 'Доступ запрещён. Требуется роль: '
-                    . implode(', ', array_map(fn (UserRole $r) => $r->value, $allowedRoles)),
+                    .implode(separator: ', ', array: array_map(callback: fn (UserRole $r) => $r->value, array: $allowedRoles)),
             ], Response::HTTP_FORBIDDEN);
         }
 

@@ -30,3 +30,7 @@ Thumbs.db
 composer.lock
 npm-debug.log
 yarn-error.log
+.phpstan/
+.phpunit.result.cache
+.phpunit.cache/
+.php-cs-fixer.cache

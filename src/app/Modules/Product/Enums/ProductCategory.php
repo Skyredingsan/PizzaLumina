@@ -12,9 +12,11 @@ enum ProductCategory: string
     /**
      * Возвращает массив значений для валидации.
      * Используется в StoreProductRequest/UpdateProductRequest.
+     *
+     * @return list<string>
      */
     public static function values(): array
     {
-        return array_column(self::cases(), 'value');
+        return array_column(array: self::cases(), column_key: 'value');
     }
 }

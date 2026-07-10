@@ -16,10 +16,10 @@ class AdminUserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@pizzalumina.test'],
             [
-                'name'     => 'Admin',
-                'phone'    => '+70000000000',
+                'name' => 'Admin',
+                'phone' => '+70000000000',
                 'password' => Hash::make((string) env('ADMIN_PASSWORD', 'Admin@12345')),
-                'role'     => UserRole::Admin,
+                'role' => UserRole::Admin,
             ],
         );
     }

@@ -22,7 +22,7 @@ final class SmsChannel
         $message = $notification->toSms($notifiable);
 
         Log::channel('sms')->info('SMS отправлено', [
-            'to'      => $notifiable->phone,
+            'to' => $notifiable->phone,
             'message' => $message,
         ]);
     }

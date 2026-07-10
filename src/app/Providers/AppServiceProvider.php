@@ -1,29 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\Modules\User\Channels\SmsChannel;
-use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        $this->app->singleton(SmsChannel::class);
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap сервисов приложения.
      */
     public function boot(): void
     {
-        Notification::extend('sms', static function (Container $container): SmsChannel {
-            return $container->make(SmsChannel::class);
-        });
+        Notification::extend('sms', static fn (Container $app): SmsChannel => $app->make(SmsChannel::class));
     }
 }

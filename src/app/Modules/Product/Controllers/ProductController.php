@@ -20,28 +20,28 @@ final class ProductController extends Controller
     {
         $products = Product::paginate(self::PER_PAGE);
 
-        return ProductResource::collection($products)->response();
+        return ProductResource::collection(resource: $products)->response();
     }
 
     public function store(StoreProductRequest $request): JsonResponse
     {
         $product = Product::create($request->validated());
 
-        return (new ProductResource($product))
+        return (new ProductResource(resource: $product))
             ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+            ->setStatusCode(code: Response::HTTP_CREATED);
     }
 
     public function show(Product $product): JsonResponse
     {
-        return (new ProductResource($product))->response();
+        return (new ProductResource(resource: $product))->response();
     }
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $product->update($request->validated());
+        $product->update(attributes: $request->validated());
 
-        return (new ProductResource($product))->response();
+        return (new ProductResource(resource: $product))->response();
     }
 
     public function destroy(Product $product): Response

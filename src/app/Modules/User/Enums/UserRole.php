@@ -18,9 +18,9 @@ enum UserRole: string
     public function weight(): int
     {
         return match ($this) {
-            self::Guest    => 0,
+            self::Guest => 0,
             self::Customer => 1,
-            self::Admin    => 2,
+            self::Admin => 2,
         };
     }
 }

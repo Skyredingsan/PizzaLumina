@@ -8,4 +8,5 @@ Thumbs.db
 !.env.app.example
 
 # Logs
-*.log
+*.log.idea/
+.idea/

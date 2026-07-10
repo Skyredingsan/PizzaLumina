@@ -13,8 +13,8 @@ use Stringable;
 final readonly class Money implements Stringable
 {
     /**
-     * @param int    $amount   Сумма в центах (минорная единица валюты)
-     * @param string $currency ISO 4217 код валюты, 3 заглавные буквы (RUB, USD, EUR)
+     * @param  int  $amount  Сумма в центах (минорная единица валюты)
+     * @param  string  $currency  ISO 4217 код валюты, 3 заглавные буквы (RUB, USD, EUR)
      */
     public function __construct(
         private int $amount,
@@ -22,13 +22,13 @@ final readonly class Money implements Stringable
     ) {
         if ($amount < 0) {
             throw new InvalidArgumentException(
-                'Money amount cannot be negative. Got: ' . $amount
+                message: 'Money amount cannot be negative. Got: '.$amount
             );
         }
 
-        if (! preg_match('/^[A-Z]{3}$/', $currency)) {
+        if (! preg_match(pattern: '/^[A-Z]{3}$/', subject: $currency)) {
             throw new InvalidArgumentException(
-                'Currency must be a 3-letter uppercase ISO 4217 code. Got: ' . $currency
+                message: 'Currency must be a 3-letter uppercase ISO 4217 code. Got: '.$currency
             );
         }
     }
@@ -39,7 +39,7 @@ final readonly class Money implements Stringable
      */
     public static function fromRubles(int|float|string $rubles): self
     {
-        return new self((int) round((float) $rubles * 100));
+        return new self((int) round(num: (float) $rubles * 100));
     }
 
     /**
@@ -76,27 +76,29 @@ final readonly class Money implements Stringable
 
     /**
      * Сложение. Оба Money должны быть в одной валюте.
+     *
      * @throws InvalidArgumentException При попытке сложить разные валюты.
      */
     public function add(self $other): self
     {
-        $this->assertSameCurrency($other);
+        $this->assertSameCurrency(other: $other);
 
         return new self($this->amount + $other->amount, $this->currency);
     }
 
     /**
      * Вычитание.
+     *
      * @throws InvalidArgumentException При разных валютах ИЛИ если результат < 0.
      */
     public function subtract(self $other): self
     {
-        $this->assertSameCurrency($other);
+        $this->assertSameCurrency(other: $other);
 
         $result = $this->amount - $other->amount;
         if ($result < 0) {
             throw new InvalidArgumentException(
-                "Money subtraction would result in negative amount: {$this->amount} - {$other->amount}"
+                message: "Money subtraction would result in negative amount: {$this->amount} - {$other->amount}"
             );
         }
 
@@ -115,7 +117,7 @@ final readonly class Money implements Stringable
     public function multiply(int|float $factor): self
     {
         return new self(
-            (int) round($this->amount * (float) $factor),
+            (int) round(num: $this->amount * (float) $factor),
             $this->currency,
         );
     }
@@ -135,14 +137,14 @@ final readonly class Money implements Stringable
 
     public function isGreaterThan(self $other): bool
     {
-        $this->assertSameCurrency($other);
+        $this->assertSameCurrency(other: $other);
 
         return $this->amount > $other->amount;
     }
 
     public function isLessThan(self $other): bool
     {
-        $this->assertSameCurrency($other);
+        $this->assertSameCurrency(other: $other);
 
         return $this->amount < $other->amount;
     }
@@ -156,7 +158,7 @@ final readonly class Money implements Stringable
     {
         if ($this->currency !== $other->currency) {
             throw new InvalidArgumentException(
-                "Cannot operate on Money with different currencies: {$this->currency} vs {$other->currency}"
+                message: "Cannot operate on Money with different currencies: {$this->currency} vs {$other->currency}"
             );
         }
     }
@@ -167,6 +169,6 @@ final readonly class Money implements Stringable
      */
     public function __toString(): string
     {
-        return number_format($this->getRubles(), 2, '.', ' ') . ' ' . $this->currency;
+        return number_format(num: $this->getRubles(), decimals: 2, thousands_separator: ' ').' '.$this->currency;
     }
 }

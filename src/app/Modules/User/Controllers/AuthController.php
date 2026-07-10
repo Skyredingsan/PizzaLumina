@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\User\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\User\Models\User;
 use App\Modules\User\Requests\LoginRequest;
 use App\Modules\User\Requests\RegisterRequest;
 use App\Modules\User\Resources\UserResource;
@@ -21,7 +22,7 @@ final class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $token = $this->auth->register($request->toRegisterInput());
+        $token = $this->auth->register(input: $request->toRegisterInput());
 
         return $this->respondWithToken(
             token: $token,
@@ -32,8 +33,8 @@ final class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $token = $this->auth->login(
-            $request->string('email')->toString(),
-            $request->string('password')->toString(),
+            email: $request->string(key: 'email')->toString(),
+            password: $request->string(key: 'password')->toString(),
         );
 
         if ($token === null) {
@@ -56,7 +57,7 @@ final class AuthController extends Controller
     {
         $user = $this->auth->currentUser();
 
-        if ($user === null) {
+        if (! $user instanceof User) {
             return response()->json([
                 'message' => 'Пользователь не найден.',
             ], Response::HTTP_UNAUTHORIZED);
@@ -76,7 +77,7 @@ final class AuthController extends Controller
     {
         return response()->json([
             'data' => [
-                'token'      => $token,
+                'token' => $token,
                 'expires_in' => $this->auth->expiresIn(),
             ],
         ], $status);
