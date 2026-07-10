@@ -1,6 +1,24 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Access to property \$quantity on an unknown class App\\Modules\\Cart\\Resources\\CartItem\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Parameter \$callback of method Illuminate\\Support\\Collection\<int,App\\Modules\\Cart\\Models\\CartItem\>\:\:sum\(\) expects \(callable\(App\\Modules\\Cart\\Models\\CartItem, int\)\: int\)\|string\|null, Closure\(App\\Modules\\Cart\\Resources\\CartItem\)\: int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Parameter \$item of anonymous function has invalid type App\\Modules\\Cart\\Resources\\CartItem\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
 			message: '#^Class App\\Modules\\Product\\Models\\Product uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1

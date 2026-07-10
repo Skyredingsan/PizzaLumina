@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Cart\Resources;
 
 use App\Modules\Cart\Models\Cart;
+use App\Modules\Cart\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,7 +24,7 @@ class CartResource extends JsonResource
             'user_id' => $cart->user_id,
             'items' => CartItemResource::collection(resource: $cart->items),
             'items_count' => $cart->items->count(),
-            'total_quantity' => $cart->items->sum(callback: fn ($item) => $item->quantity),
+            'total_quantity' => $cart->items->sum(callback: fn (CartItem $item): int => $item->quantity),
             'created_at' => $cart->created_at?->toIso8601String(),
             'updated_at' => $cart->updated_at?->toIso8601String(),
         ];
