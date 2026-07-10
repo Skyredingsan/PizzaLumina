@@ -2,11 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Modules\Cart\Exceptions\CartItemNotFoundException;
+use App\Modules\Cart\Exceptions\CartLimitExceededException;
+use App\Modules\Order\Exceptions\EmptyCartException;
+use App\Modules\Order\Exceptions\InvalidOrderTransitionException;
+use App\Modules\Order\Exceptions\OrderNotFoundException;
 use App\Modules\User\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Http\Middleware\Authenticate as JwtAuthenticate;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -26,5 +32,35 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->renderable(function (CartLimitExceededException $e, Request $request): Response {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        });
+
+        $exceptions->renderable(function (EmptyCartException $e, Request $request): Response {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        });
+
+        $exceptions->renderable(function (CartItemNotFoundException $e, Request $request): Response {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_NOT_FOUND);
+        });
+
+        $exceptions->renderable(function (OrderNotFoundException $e, Request $request): Response {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_NOT_FOUND);
+        });
+
+        $exceptions->renderable(function (InvalidOrderTransitionException $e, Request $request): Response {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_CONFLICT);
+        });
     })
     ->create();

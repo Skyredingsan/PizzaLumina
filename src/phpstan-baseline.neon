@@ -211,6 +211,54 @@ parameters:
 			path: tests/Feature/Api/Auth/RegisterTest.php
 
 		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertSame\(\) invoked with named argument \$actual, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 4
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertSame\(\) invoked with named argument \$expected, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 4
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) invoked with named argument \$haystack, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 1
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) invoked with named argument \$needle, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 1
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) invoked with named argument \$actual, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 2
+			path: tests/Feature/Api/Order/OrderManagementTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertSame\(\) invoked with named argument \$actual, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 7
+			path: tests/Feature/Api/Order/OrderManagementTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertSame\(\) invoked with named argument \$expected, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 7
+			path: tests/Feature/Api/Order/OrderManagementTest.php
+
+		-
+			message: '#^Method Tests\\Feature\\Api\\Order\\OrderManagementTest\:\:validAddress\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/Feature/Api/Order/OrderManagementTest.php
+
+		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
