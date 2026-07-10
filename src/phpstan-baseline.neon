@@ -1,22 +1,382 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to property \$quantity on an unknown class App\\Modules\\Cart\\Resources\\CartItem\.$#'
-			identifier: class.notFound
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\Cart\:\:belongsTo\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\Cart\:\:hasMany\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Property App\\Modules\\Cart\\Models\\Cart\:\:\$fillable has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Type \$this\(App\\Modules\\Cart\\Models\\Cart\) in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Modules\\User\\Models\\User, \$this\(App\\Modules\\Cart\\Models\\Cart\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Type \$this\(App\\Modules\\Cart\\Models\\Cart\) in generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Modules\\Cart\\Models\\CartItem, \$this\(App\\Modules\\Cart\\Models\\Cart\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Type App\\Modules\\Cart\\Models\\CartItem in generic type Illuminate\\Database\\Eloquent\\Collection\<int, App\\Modules\\Cart\\Models\\CartItem\> in PHPDoc tag @property\-read for property App\\Modules\\Cart\\Models\\Cart\:\:\$items is not subtype of template type TModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Collection\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Type App\\Modules\\Cart\\Models\\CartItem in generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Modules\\Cart\\Models\\CartItem, \$this\(App\\Modules\\Cart\\Models\\Cart\)\> in PHPDoc tag @return is not subtype of template type TRelatedModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/Cart.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\CartItem\:\:belongsTo\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Modules/Cart/Models/CartItem.php
+
+		-
+			message: '#^Property App\\Modules\\Cart\\Models\\CartItem\:\:\$fillable has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Modules/Cart/Models/CartItem.php
+
+		-
+			message: '#^Type \$this\(App\\Modules\\Cart\\Models\\CartItem\) in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Modules\\Cart\\Models\\Cart, \$this\(App\\Modules\\Cart\\Models\\CartItem\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/CartItem.php
+
+		-
+			message: '#^Type \$this\(App\\Modules\\Cart\\Models\\CartItem\) in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Modules\\Product\\Models\\Product, \$this\(App\\Modules\\Cart\\Models\\CartItem\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/CartItem.php
+
+		-
+			message: '#^Type App\\Modules\\Cart\\Models\\Cart in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Modules\\Cart\\Models\\Cart, \$this\(App\\Modules\\Cart\\Models\\CartItem\)\> in PHPDoc tag @return is not subtype of template type TRelatedModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Models/CartItem.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartItemResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\CartItem\:\:relationLoaded\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$created_at\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Modules/Cart/Resources/CartResource.php
 
 		-
-			message: '#^Parameter \$callback of method Illuminate\\Support\\Collection\<int,App\\Modules\\Cart\\Models\\CartItem\>\:\:sum\(\) expects \(callable\(App\\Modules\\Cart\\Models\\CartItem, int\)\: int\)\|string\|null, Closure\(App\\Modules\\Cart\\Resources\\CartItem\)\: int given\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Resources/CartResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\Cart\:\:load\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\CartItem\:\:increment\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Cart\\Models\\CartItem\:\:update\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\Cart\:\:firstOrCreate\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\Cart\:\:lockForUpdate\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to private method delete\(\) of parent class Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<TRelatedModel of Illuminate\\Database\\Eloquent\\Model,TDeclaringModel of Illuminate\\Database\\Eloquent\\Model,Illuminate\\Database\\Eloquent\\Collection\<int, TRelatedModel of Illuminate\\Database\\Eloquent\\Model\>\>\.$#'
+			identifier: method.private
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to private method where\(\) of parent class Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<TRelatedModel of Illuminate\\Database\\Eloquent\\Model,TDeclaringModel of Illuminate\\Database\\Eloquent\\Model,Illuminate\\Database\\Eloquent\\Collection\<int, TRelatedModel of Illuminate\\Database\\Eloquent\\Model\>\>\.$#'
+			identifier: method.private
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Call to private method with\(\) of parent class Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<TRelatedModel of Illuminate\\Database\\Eloquent\\Model,TDeclaringModel of Illuminate\\Database\\Eloquent\\Model,Illuminate\\Database\\Eloquent\\Collection\<int, TRelatedModel of Illuminate\\Database\\Eloquent\\Model\>\>\.$#'
+			identifier: method.private
+			count: 2
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Type App\\Modules\\Cart\\Models\\CartItem in generic type Illuminate\\Database\\Eloquent\\Collection\<int, App\\Modules\\Cart\\Models\\CartItem\> in PHPDoc tag @param for parameter \$currentItems is not subtype of template type TModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Collection\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Type App\\Modules\\Cart\\Models\\CartItem in generic type Illuminate\\Database\\Eloquent\\Collection\<int, App\\Modules\\Cart\\Models\\CartItem\> in PHPDoc tag @var for variable \$items is not subtype of template type TModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Collection\.$#'
+			identifier: generics.notSubtype
+			count: 2
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Unable to resolve the template type TReturnType in call to method Illuminate\\Support\\Collection\<int,App\\Modules\\Cart\\Models\\CartItem\>\:\:sum\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Modules/Cart/Services/CartService.php
+
+		-
+			message: '#^Method App\\Modules\\Order\\Models\\Order\:\:items\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Modules\\Order\\Models\\OrderItem, \$this\(App\\Modules\\Order\\Models\\Order\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Illuminate\\Database\\Eloquent\\Model, \$this\(App\\Modules\\Order\\Models\\Order\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Order/Models/Order.php
+
+		-
+			message: '#^Parameter \$related of method Illuminate\\Database\\Eloquent\\Model\:\:hasMany\(\) expects class\-string\<Illuminate\\Database\\Eloquent\\Model\>, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Modules/Cart/Resources/CartResource.php
+			path: app/Modules/Order/Models/Order.php
 
 		-
-			message: '#^Parameter \$item of anonymous function has invalid type App\\Modules\\Cart\\Resources\\CartItem\.$#'
-			identifier: class.notFound
+			message: '#^Type App\\Modules\\Order\\Models\\OrderItem in generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Modules\\Order\\Models\\OrderItem, \$this\(App\\Modules\\Order\\Models\\Order\)\> in PHPDoc tag @return is not subtype of template type TRelatedModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\.$#'
+			identifier: generics.notSubtype
 			count: 1
-			path: app/Modules/Cart/Resources/CartResource.php
+			path: app/Modules/Order/Models/Order.php
+
+		-
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:hasMany\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Modules/Order/Models/Order.php
+
+		-
+			message: '#^Call to an undefined method App\\Modules\\Order\\Models\\OrderItem\:\:belongsTo\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Modules/Order/Models/OrderItem.php
+
+		-
+			message: '#^Method App\\Modules\\Order\\Models\\OrderItem\:\:casts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Modules/Order/Models/OrderItem.php
+
+		-
+			message: '#^Property App\\Modules\\Order\\Models\\OrderItem\:\:\$fillable has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Modules/Order/Models/OrderItem.php
+
+		-
+			message: '#^Type \$this\(App\\Modules\\Order\\Models\\OrderItem\) in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Modules\\Order\\Models\\Order, \$this\(App\\Modules\\Order\\Models\\OrderItem\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Order/Models/OrderItem.php
+
+		-
+			message: '#^Type \$this\(App\\Modules\\Order\\Models\\OrderItem\) in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Modules\\Product\\Models\\Product, \$this\(App\\Modules\\Order\\Models\\OrderItem\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Order/Models/OrderItem.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$line_total\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$order_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$product_category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$product_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$product_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Order\\Models\\OrderItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Resources/OrderItemResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\Cart\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$product\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$product_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Cart\\Models\\CartItem\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\Cart\:\:lockForUpdate\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Call to private method delete\(\) of parent class Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<TRelatedModel of Illuminate\\Database\\Eloquent\\Model,TDeclaringModel of Illuminate\\Database\\Eloquent\\Model,Illuminate\\Database\\Eloquent\\Collection\<int, TRelatedModel of Illuminate\\Database\\Eloquent\\Model\>\>\.$#'
+			identifier: method.private
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Call to private method with\(\) of parent class Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\<TRelatedModel of Illuminate\\Database\\Eloquent\\Model,TDeclaringModel of Illuminate\\Database\\Eloquent\\Model,Illuminate\\Database\\Eloquent\\Collection\<int, TRelatedModel of Illuminate\\Database\\Eloquent\\Model\>\>\.$#'
+			identifier: method.private
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
+
+		-
+			message: '#^Type App\\Modules\\Cart\\Models\\CartItem in generic type Illuminate\\Database\\Eloquent\\Collection\<int, App\\Modules\\Cart\\Models\\CartItem\> in PHPDoc tag @var for variable \$items is not subtype of template type TModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Collection\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Modules/Order/Services/OrderService.php
 
 		-
 			message: '#^Class App\\Modules\\Product\\Models\\Product uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -229,6 +589,24 @@ parameters:
 			path: tests/Feature/Api/Auth/RegisterTest.php
 
 		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\Cart\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\CartItem\:\:query\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\CartItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
 			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertSame\(\) invoked with named argument \$actual, but it''s not allowed because of @no\-named\-arguments\.$#'
 			identifier: argument.named
 			count: 4
@@ -251,6 +629,18 @@ parameters:
 			identifier: argument.named
 			count: 1
 			path: tests/Feature/Api/Cart/CartConcurrencyTest.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Cart\\Models\\CartItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: tests/Feature/Api/Cart/CartManagementTest.php
+
+		-
+			message: '#^Call to an undefined static method App\\Modules\\Order\\Models\\OrderItem\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/Feature/Api/Order/OrderManagementTest.php
 
 		-
 			message: '#^Method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) invoked with named argument \$actual, but it''s not allowed because of @no\-named\-arguments\.$#'

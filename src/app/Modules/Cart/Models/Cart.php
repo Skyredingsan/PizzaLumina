@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\Modules\Cart\Models;
 
 use App\Modules\User\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $user_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Modules\User\Models\User $user
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Cart\Models\CartItem> $items
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User $user
+ * @property-read Collection<int, CartItem> $items
  */
 class Cart extends Model
 {

@@ -7,6 +7,7 @@ namespace App\Modules\Order\Models;
 use App\Modules\Product\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -17,9 +18,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $product_price
  * @property int $quantity
  * @property float $line_total
- * @property \Illuminate\Support\Carbon $created_at
- * @property-read \App\Modules\Order\Models\Order $order
- * @property-read \App\Modules\Product\Models\Product $product
+ * @property Carbon $created_at
+ * @property-read Order $order
+ * @property-read Product $product
  */
 class OrderItem extends Model
 {

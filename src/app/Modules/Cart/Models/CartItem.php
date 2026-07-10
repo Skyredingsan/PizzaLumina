@@ -7,16 +7,17 @@ namespace App\Modules\Cart\Models;
 use App\Modules\Product\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $cart_id
  * @property int $product_id
  * @property int $quantity
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Modules\Cart\Models\Cart $cart
- * @property-read \App\Modules\Product\Models\Product $product
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Cart $cart
+ * @property-read Product $product
  */
 class CartItem extends Model
 {
