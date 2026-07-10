@@ -26,5 +26,6 @@ return (new PhpCsFixer\Config())
         'return_type_declaration' => ['space_before' => 'none'],
         'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
     ])
+    ->setCacheFile(__DIR__ . '/var/.php-cs-fixer.cache')
     ->setFinder($finder)
     ->setRiskyAllowed(true);
