@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
- $finder = (new PhpCsFixer\Finder())
+$finder = (new PhpCsFixer\Finder())
     ->in(__DIR__ . '/app')
     ->in(__DIR__ . '/database')
     ->in(__DIR__ . '/tests')
@@ -21,7 +21,7 @@ return (new PhpCsFixer\Config())
         'ordered_imports' => ['sort_algorithm' => 'alpha'],
         'single_quote' => true,
         'trailing_comma_in_multiline' => ['elements' => ['arrays']],
-        'visibility_required' => ['elements' => ['property', 'method', 'const']],
+        'modifier_keywords' => true,
         'no_extra_blank_lines' => true,
         'return_type_declaration' => ['space_before' => 'none'],
         'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],

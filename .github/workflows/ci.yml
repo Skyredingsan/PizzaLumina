@@ -108,8 +108,8 @@ jobs:
           php artisan key:generate --force
           php artisan jwt:secret --force
 
-      - name: Run migrations
-        run: php artisan migrate --force
+      - name: Run migrations (fresh)
+        run: php artisan migrate:fresh --force
 
       - name: PHP CS Fixer
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
