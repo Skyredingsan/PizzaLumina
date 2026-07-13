@@ -14,22 +14,31 @@ use App\Modules\Product\Enums\ProductCategory;
 use App\Modules\Product\Models\Product;
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 final class CartService
 {
+    private const LOCK_TIMEOUT = '2s';
+
+    private const TRANSACTION_ATTEMPTS = 3;
+
     public function getCartForUser(User $user): Cart
     {
-        $this->ensureCartExists(user: $user);
+        return DB::transaction(callback: function () use ($user): Cart {
+            $this->ensureCartExists(user: $user);
 
-        return Cart::with(relations: ['items.product'])
-            ->where(column: 'user_id', operator: $user->id)
-            ->firstOrFail();
+            return Cart::with(relations: ['items.product'])
+                ->where(column: 'user_id', operator: $user->id)
+                ->sharedLock()
+                ->firstOrFail();
+        }, attempts: self::TRANSACTION_ATTEMPTS);
     }
 
     public function addItem(User $user, AddToCartInput $input): Cart
     {
         return DB::transaction(callback: function () use ($user, $input): Cart {
+            $this->applyLockTimeout();
             $cart = $this->lockCart(user: $user);
             $product = Product::findOrFail($input->productId);
 
@@ -51,12 +60,13 @@ final class CartService
             }
 
             return $this->getCartForUser(user: $user);
-        });
+        }, attempts: self::TRANSACTION_ATTEMPTS);
     }
 
     public function updateItem(User $user, int $itemId, UpdateCartItemInput $input): Cart
     {
         return DB::transaction(callback: function () use ($user, $itemId, $input): Cart {
+            $this->applyLockTimeout();
             $cart = $this->lockCart(user: $user);
             $item = $cart->items->firstWhere(key: 'id', operator: $itemId);
 
@@ -77,12 +87,13 @@ final class CartService
             $item->update(attributes: ['quantity' => $input->quantity]);
 
             return $this->getCartForUser(user: $user);
-        });
+        }, attempts: self::TRANSACTION_ATTEMPTS);
     }
 
     public function removeItem(User $user, int $itemId): Cart
     {
         return DB::transaction(callback: function () use ($user, $itemId): Cart {
+            $this->applyLockTimeout();
             $cart = $this->lockCart(user: $user);
             $item = $cart->items->firstWhere(key: 'id', operator: $itemId);
 
@@ -93,17 +104,18 @@ final class CartService
             $item->delete();
 
             return $this->getCartForUser(user: $user);
-        });
+        }, attempts: self::TRANSACTION_ATTEMPTS);
     }
 
     public function clearCart(User $user): Cart
     {
         return DB::transaction(callback: function () use ($user): Cart {
+            $this->applyLockTimeout();
             $cart = $this->lockCart(user: $user);
             $cart->items()->delete();
 
             return $this->getCartForUser(user: $user);
-        });
+        }, attempts: self::TRANSACTION_ATTEMPTS);
     }
 
     private function ensureCartExists(User $user): void
@@ -132,6 +144,14 @@ final class CartService
             ->where(column: 'user_id', operator: $user->id)
             ->lockForUpdate()
             ->firstOrFail();
+    }
+
+    /**
+     * @throws QueryException если SQLSTATE не поддерживается
+     */
+    private function applyLockTimeout(): void
+    {
+        DB::statement("SET LOCAL lock_timeout = '" . self::LOCK_TIMEOUT . "'");
     }
 
     /**

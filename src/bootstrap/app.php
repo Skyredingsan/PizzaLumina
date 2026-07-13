@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Cart\Exceptions\CartLimitExceededException;
 use App\Modules\Cart\Exceptions\CartItemNotFoundException;
-use App\Modules\Order\Exceptions\CartInvalidException;
 use App\Modules\Order\Exceptions\EmptyCartException;
 use App\Modules\Order\Exceptions\InvalidOrderTransitionException;
 use App\Modules\Order\Exceptions\OrderNotFoundException;
@@ -35,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
 
-        $exceptions->renderable(function (CartLimitExceededException|EmptyCartException|OrderTooLargeException|CartInvalidException $e, Request $request): Response {
+        $exceptions->renderable(function (CartLimitExceededException|EmptyCartException|OrderTooLargeException $e): Response {
             return response()->json([
                 'message' => $e->getMessage(),
                 'error' => $e->getMessage(),
@@ -43,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         });
 
-        $exceptions->renderable(function (CartItemNotFoundException|OrderNotFoundException $e, Request $request): Response {
+        $exceptions->renderable(function (CartItemNotFoundException|OrderNotFoundException $e): Response {
             return response()->json([
                 'message' => $e->getMessage(),
                 'error' => $e->getMessage(),
@@ -51,7 +50,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ], Response::HTTP_NOT_FOUND);
         });
 
-        $exceptions->renderable(function (InvalidOrderTransitionException $e, Request $request): Response {
+        $exceptions->renderable(function (InvalidOrderTransitionException $e): Response {
             return response()->json([
                 'message' => $e->getMessage(),
                 'error' => $e->getMessage(),

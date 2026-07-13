@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('status')->default('created');
             $table->unsignedInteger('total_amount')->default(0);
+            $table->string('delivery_method', 20)->default('courier');
 
             $table->string('address_region')->nullable();
             $table->string('address_city')->nullable();
@@ -24,6 +25,7 @@ return new class extends Migration {
             $table->string('address_zip')->nullable();
 
             $table->timestamp('paid_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->timestamps();
         });
