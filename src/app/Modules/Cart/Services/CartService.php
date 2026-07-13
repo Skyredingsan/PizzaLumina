@@ -18,112 +18,81 @@ use Illuminate\Support\Facades\DB;
 
 final class CartService
 {
-    public const MAX_PIZZAS = 10;
-
-    public const MAX_DRINKS = 20;
-
-    public function getOrCreateCart(User $user): Cart
-    {
-        return Cart::firstOrCreate(attributes: ['user_id' => $user->id]);
-    }
-
     public function getCartForUser(User $user): Cart
     {
-        $cart = $this->getOrCreateCart(user: $user);
-        $cart->load(relations: ['items.product']);
+        $this->ensureCartExists(user: $user);
 
-        return $cart;
+        return Cart::with(relations: ['items.product'])
+            ->where(column: 'user_id', operator: $user->id)
+            ->firstOrFail();
     }
 
-    /**
-     * @throws CartLimitExceededException
-     */
     public function addItem(User $user, AddToCartInput $input): Cart
     {
         return DB::transaction(callback: function () use ($user, $input): Cart {
             $cart = $this->lockCart(user: $user);
             $product = Product::findOrFail($input->productId);
 
-            /** @var Collection<int, CartItem> $items */
-            $items = $cart->items()->with('product')->get();
-
             $this->assertWithinLimits(
                 category: $product->category,
-                currentItems: $items,
+                items: $cart->items,
                 delta: $input->quantity,
             );
 
-            $existing = $items->firstWhere(key: 'product_id', operator: $input->productId);
+            $existing = $cart->items->firstWhere(key: 'product_id', operator: $product->id);
 
-            if ($existing instanceof CartItem) {
+            if ($existing !== null) {
                 $existing->increment(column: 'quantity', amount: $input->quantity);
             } else {
                 $cart->items()->create(attributes: [
-                    'product_id' => $input->productId,
+                    'product_id' => $product->id,
                     'quantity' => $input->quantity,
                 ]);
             }
 
-            $cart->load(relations: ['items.product']);
-
-            return $cart;
+            return $this->getCartForUser(user: $user);
         });
     }
 
-    /**
-     * @throws CartItemNotFoundException Если элемент не найден в корзине.
-     * @throws CartLimitExceededException Если новое количество превышает лимит.
-     */
     public function updateItem(User $user, int $itemId, UpdateCartItemInput $input): Cart
     {
         return DB::transaction(callback: function () use ($user, $itemId, $input): Cart {
             $cart = $this->lockCart(user: $user);
+            $item = $cart->items->firstWhere(key: 'id', operator: $itemId);
 
-            /** @var Collection<int, CartItem> $items */
-            $items = $cart->items()->with('product')->get();
-
-            $item = $items->firstWhere(key: 'id', operator: $itemId);
-
-            if (! $item instanceof CartItem) {
+            if ($item === null) {
                 throw CartItemNotFoundException::forItem(itemId: $itemId);
             }
 
-            $product = $item->product;
             $delta = $input->quantity - $item->quantity;
 
-            if ($delta > 0 && $product instanceof Product) {
+            if ($delta > 0) {
                 $this->assertWithinLimits(
-                    category: $product->category,
-                    currentItems: $items,
+                    category: $item->product->category,
+                    items: $cart->items,
                     delta: $delta,
                 );
             }
 
             $item->update(attributes: ['quantity' => $input->quantity]);
 
-            $cart->load(relations: ['items.product']);
-
-            return $cart;
+            return $this->getCartForUser(user: $user);
         });
     }
 
-    /**
-     * @throws CartItemNotFoundException Если элемент не найден.
-     */
     public function removeItem(User $user, int $itemId): Cart
     {
         return DB::transaction(callback: function () use ($user, $itemId): Cart {
             $cart = $this->lockCart(user: $user);
+            $item = $cart->items->firstWhere(key: 'id', operator: $itemId);
 
-            $deleted = $cart->items()->where('id', $itemId)->delete();
-
-            if ($deleted === 0) {
+            if ($item === null) {
                 throw CartItemNotFoundException::forItem(itemId: $itemId);
             }
 
-            $cart->load(relations: ['items.product']);
+            $item->delete();
 
-            return $cart;
+            return $this->getCartForUser(user: $user);
         });
     }
 
@@ -131,51 +100,60 @@ final class CartService
     {
         return DB::transaction(callback: function () use ($user): Cart {
             $cart = $this->lockCart(user: $user);
-
             $cart->items()->delete();
 
-            $cart->load(relations: ['items.product']);
-
-            return $cart;
+            return $this->getCartForUser(user: $user);
         });
+    }
+
+    private function ensureCartExists(User $user): void
+    {
+        Cart::upsert(
+            values: [
+                'user_id' => $user->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            uniqueBy: ['user_id'],
+            update: ['updated_at' => now()],
+        );
+    }
+
+    public function lockCartForUser(User $user): Cart
+    {
+        return $this->lockCart(user: $user);
     }
 
     private function lockCart(User $user): Cart
     {
-        $cart = $this->getOrCreateCart(user: $user);
+        $this->ensureCartExists(user: $user);
 
-        /** @var Cart $locked */
-        $locked = Cart::lockForUpdate()->findOrFail(id: $cart->id);
-
-        return $locked;
+        return Cart::with(relations: ['items.product'])
+            ->where(column: 'user_id', operator: $user->id)
+            ->lockForUpdate()
+            ->firstOrFail();
     }
 
     /**
-             * @param  Collection<int, CartItem>  $currentItems
-             *
-             * @throws CartLimitExceededException
-             */
+     * @param  Collection<int, CartItem>  $items
+     */
     private function assertWithinLimits(
         ProductCategory $category,
-        Collection $currentItems,
+        Collection $items,
         int $delta,
     ): void {
-        $currentQuantity = (int) $currentItems
+        $current = $items
             ->filter(callback: fn (CartItem $item): bool => $item->product?->category === $category)
-            ->sum(callback: fn (CartItem $item) => $item->quantity);
+            ->sum(callback: fn (CartItem $item): int => $item->quantity);
 
-        $newQuantity = $currentQuantity + $delta;
+        $total = $current + $delta;
+        $limit = $category->cartLimit();
 
-        $limit = match ($category) {
-            ProductCategory::Pizza => self::MAX_PIZZAS,
-            ProductCategory::Drink => self::MAX_DRINKS,
-        };
-
-        if ($newQuantity > $limit) {
+        if ($total > $limit) {
             throw CartLimitExceededException::forCategory(
                 category: $category,
                 limit: $limit,
-                attempted: $newQuantity,
+                attempted: $total,
             );
         }
     }

@@ -8,8 +8,8 @@ use RuntimeException;
 
 final class EmptyCartException extends RuntimeException
 {
-    public function __construct()
+    public static function forUser(int $userId): self
     {
-        parent::__construct(message: 'Невозможно оформить заказ: корзина пуста.');
+        return new self(trans(key: 'cart.empty'));
     }
 }

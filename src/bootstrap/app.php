@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Modules\Cart\Exceptions\CartItemNotFoundException;
 use App\Modules\Cart\Exceptions\CartLimitExceededException;
+use App\Modules\Cart\Exceptions\CartItemNotFoundException;
+use App\Modules\Order\Exceptions\CartInvalidException;
 use App\Modules\Order\Exceptions\EmptyCartException;
 use App\Modules\Order\Exceptions\InvalidOrderTransitionException;
 use App\Modules\Order\Exceptions\OrderNotFoundException;
+use App\Modules\Order\Exceptions\OrderTooLargeException;
 use App\Modules\User\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -33,33 +35,27 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
 
-        $exceptions->renderable(function (CartLimitExceededException $e, Request $request): Response {
+        $exceptions->renderable(function (CartLimitExceededException|EmptyCartException|OrderTooLargeException|CartInvalidException $e, Request $request): Response {
             return response()->json([
                 'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
+                'type' => class_basename(class: $e),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         });
 
-        $exceptions->renderable(function (EmptyCartException $e, Request $request): Response {
+        $exceptions->renderable(function (CartItemNotFoundException|OrderNotFoundException $e, Request $request): Response {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        });
-
-        $exceptions->renderable(function (CartItemNotFoundException $e, Request $request): Response {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], Response::HTTP_NOT_FOUND);
-        });
-
-        $exceptions->renderable(function (OrderNotFoundException $e, Request $request): Response {
-            return response()->json([
-                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
+                'type' => class_basename(class: $e),
             ], Response::HTTP_NOT_FOUND);
         });
 
         $exceptions->renderable(function (InvalidOrderTransitionException $e, Request $request): Response {
             return response()->json([
                 'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
+                'type' => class_basename(class: $e),
             ], Response::HTTP_CONFLICT);
         });
     })

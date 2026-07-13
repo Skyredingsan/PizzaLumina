@@ -6,10 +6,10 @@ namespace App\Modules\Order\Requests;
 
 use App\Modules\Order\DTO\Address;
 use App\Modules\Order\DTO\CreateOrderInput;
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Modules\Order\Enums\DeliveryMethod;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateOrderRequest extends FormRequest
+final class CreateOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,43 +17,46 @@ class CreateOrderRequest extends FormRequest
     }
 
     /**
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, string>|string>
      */
     public function rules(): array
     {
         return [
-            'address' => ['required', 'array'],
-            'address.region' => ['required', 'string', 'max:100'],
-            'address.city' => ['required', 'string', 'max:100'],
-            'address.street' => ['required', 'string', 'max:200'],
-            'address.building' => ['required', 'string', 'max:20'],
-            'address.entrance' => ['sometimes', 'nullable', 'string', 'max:10'],
+            'delivery_method' => ['sometimes', 'string', 'in:' . implode(separator: ',', array: DeliveryMethod::values())],
+
+            'address' => ['sometimes', 'array'],
+            'address.region' => ['required_with:address', 'string', 'min:2', 'max:100'],
+            'address.city' => ['required_with:address', 'string', 'min:2', 'max:100'],
+            'address.street' => ['required_with:address', 'string', 'min:2', 'max:200'],
+            'address.building' => ['required_with:address', 'string', 'min:1', 'max:20'],
+            'address.entrance' => ['sometimes', 'nullable', 'string', 'max:20'],
             'address.apartment' => ['sometimes', 'nullable', 'string', 'max:20'],
-            'address.zip' => ['sometimes', 'nullable', 'string', 'max:12'],
+            'address.zip' => ['sometimes', 'nullable', 'string', 'max:20'],
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
-            'address.required' => 'Укажите адрес доставки.',
-            'address.region.required' => 'Укажите регион (область/край).',
-            'address.city.required' => 'Укажите город.',
-            'address.street.required' => 'Укажите улицу.',
-            'address.building.required' => 'Укажите номер дома.',
+            'delivery_method.in' => (string) trans(key: 'order.invalid_delivery_method'),
         ];
     }
 
     public function toCreateOrderInput(): CreateOrderInput
     {
-        /**
-         * @var array{region: string, city: string, street: string, building: string,
-         *     entrance?: string|null, apartment?: string|null, zip?: string|null} $addr
-         */
-        $addr = $this->input(key: 'address', default: []);
+        $deliveryMethod = $this->has(key: 'delivery_method')
+            ? DeliveryMethod::from(value: $this->string(key: 'delivery_method')->toString())
+            : DeliveryMethod::Courier;
+
+        $addressData = $this->input(key: 'address');
+        $address = is_array(value: $addressData) ? Address::fromArray(data: $addressData) : null;
 
         return new CreateOrderInput(
-            address: Address::fromArray(data: $addr),
+            deliveryMethod: $deliveryMethod,
+            address: $address,
         );
     }
 }

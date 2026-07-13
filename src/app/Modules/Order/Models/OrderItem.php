@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Order\Models;
 
-use App\Modules\Product\Models\Product;
+use App\Modules\Product\Enums\ProductCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -14,49 +14,50 @@ use Illuminate\Support\Carbon;
  * @property int $order_id
  * @property int $product_id
  * @property string $product_name
- * @property string $product_category
- * @property float $product_price
+ * @property ProductCategory $product_category
+ * @property int $unit_price
  * @property int $quantity
- * @property float $line_total
+ * @property string $product_price
+ * @property string $line_total
  * @property Carbon $created_at
- * @property-read Order $order
- * @property-read Product $product
+ * @property Carbon $updated_at
  */
 class OrderItem extends Model
 {
-    public const UPDATED_AT = null;
+    protected $table = 'order_items';
 
+    /** @var list<string> */
     protected $fillable = [
         'order_id',
         'product_id',
         'product_name',
         'product_category',
-        'product_price',
+        'unit_price',
         'quantity',
-        'line_total',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'product_price' => 'decimal:2',
-            'line_total'    => 'decimal:2',
-        ];
-    }
+    /** @var array<string, class-string|string> */
+    protected $casts = [
+        'product_category' => ProductCategory::class,
+        'unit_price' => 'integer',
+        'quantity' => 'integer',
+    ];
 
     /**
-     * @return BelongsTo<Order, $this>
+     * @return BelongsTo<Order, covariant $this>
      */
     public function order(): BelongsTo
     {
         return $this->belongsTo(related: Order::class);
     }
 
-    /**
-     * @return BelongsTo<Product, $this>
-     */
-    public function product(): BelongsTo
+    protected function getProductPriceAttribute(): string
     {
-        return $this->belongsTo(related: Product::class);
+        return number_format(num: $this->unit_price / 100, decimals: 2, thousands_separator: '');
+    }
+
+    protected function getLineTotalAttribute(): string
+    {
+        return number_format(num: ($this->unit_price * $this->quantity) / 100, decimals: 2, thousands_separator: '');
     }
 }

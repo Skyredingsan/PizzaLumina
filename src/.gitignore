@@ -1,51 +1,38 @@
-# === Environment & secrets ===
+*.log
+.DS_Store
 .env
 .env.backup
 .env.production
-.env.*.local
-auth.json
-
-# === OS & editor artifacts ===
-.DS_Store
-Thumbs.db
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
 /.idea
 /.nova
+/.phpunit.cache
 /.vscode
 /.zed
-/.cursor
-/.codex
-.phpactor.json
-Homestead.json
-Homestead.yaml
+/auth.json
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
 _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
-
-# === Logs ===
-*.log
+Homestead.json
+Homestead.yaml
+Thumbs.db
+composer.lock
 npm-debug.log
 yarn-error.log
-
-# === Dependencies ===
-/vendor
-/node_modules
-
-# === Build artifacts ===
-/public/build
-/public/hot
-/public/storage
-/public/fonts-manifest.dev.json
-
-# === Laravel runtime ===
-/storage/*.key
-/storage/pail
-
-# === Runtime caches (consolidated under var/) ===
+.phpstan/
+.phpunit.result.cache
+.phpunit.cache/
+.php-cs-fixer.cache
 /var/*
 !/var/.gitkeep
-
-# === Legacy cache paths (in case anything still writes here) ===
-/.phpstan
-/.phpunit.cache
-/.phpunit.result.cache
-/.php-cs-fixer.cache

@@ -80,7 +80,7 @@ final class OrderController extends Controller
 
         $updated = $this->orderService->updateStatus(
             order: $orderModel,
-            next: $request->toStatus(),
+            status: $request->toStatus(),
         );
 
         return (new OrderResource(resource: $updated))->response();

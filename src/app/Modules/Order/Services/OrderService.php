@@ -5,202 +5,93 @@ declare(strict_types=1);
 namespace App\Modules\Order\Services;
 
 use App\Modules\Cart\Models\Cart;
-use App\Modules\Cart\Models\CartItem;
 use App\Modules\Cart\Services\CartService;
 use App\Modules\Order\DTO\Address;
 use App\Modules\Order\DTO\CreateOrderInput;
 use App\Modules\Order\Enums\OrderStatus;
-use App\Modules\Order\Exceptions\EmptyCartException;
-use App\Modules\Order\Exceptions\InvalidOrderTransitionException;
-use App\Modules\Order\Exceptions\OrderNotFoundException;
+use App\Modules\Order\Exceptions\CartInvalidException;
+use App\Modules\Order\Exceptions\InvalidStatusTransitionException;
+use App\Modules\Order\Exceptions\OrderTooLargeException;
 use App\Modules\Order\Models\Order;
-use App\Modules\Product\Models\Product;
+use App\Modules\Order\Models\OrderItem;
 use App\Modules\User\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Shared\ValueObjects\Money;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Throwable;
 
-/**
- * @see OrderStatus::canTransitionTo()
- */
 final readonly class OrderService
 {
+    private const MAX_ORDER_ITEMS = 50;
+
     public function __construct(
         private CartService $cartService,
     ) {
     }
 
     /**
-     * @throws EmptyCartException Если корзина пуста.
+     * @throws CartInvalidException|OrderTooLargeException|Throwable
      */
     public function createOrder(User $user, CreateOrderInput $input): Order
     {
-        return DB::transaction(callback: function () use ($user, $input): Order {
-            $cart = $this->cartService->getOrCreateCart(user: $user);
+        if ($input->deliveryMethod->requiresAddress() && !$input->address instanceof Address) {
+            throw new CartInvalidException(message: (string) trans(key: 'order.address_required_for_courier'));
+        }
 
-            /** @var Cart $locked */
-            $locked = Cart::lockForUpdate()->findOrFail(id: $cart->id);
+        return DB::transaction(function () use ($user, $input): Order {
+            $cart = $this->cartService->lockCartForUser(user: $user);
+            $this->assertCartIsValid(cart: $cart);
+            $this->assertOrderSizeIsAcceptable(cart: $cart);
 
-            /** @var Collection<int, CartItem> $items */
-            $items = $locked->items()->with(relations: 'product')->get();
-
-            $total = 0.0;
-            $orderItemsData = [];
-
-            foreach ($items as $item) {
-                $product = $item->product;
-
-                if (! $product instanceof Product) {
-                    continue;
-                }
-
-                $priceRubles = $product->price->getRubles();
-                $lineTotal = $priceRubles * $item->quantity;
-                $total += $lineTotal;
-
-                $orderItemsData[] = [
-                    'product_id' => $item->product_id,
-                    'product_name' => $product->name,
-                    'product_category' => $product->category->value,
-                    'product_price' => number_format(num: $priceRubles, decimals: 2, decimal_separator: '.', thousands_separator: ''),
-                    'quantity' => $item->quantity,
-                    'line_total' => number_format(num: $lineTotal, decimals: 2, decimal_separator: '.', thousands_separator: ''),
-                ];
+            $total = Money::fromCents(cents: 0);
+            foreach ($cart->items as $cartItem) {
+                $line = $cartItem->product->price->multiply(factor: $cartItem->quantity);
+                $total = $total->add(other: $line);
             }
 
-            if ($orderItemsData === []) {
-                throw new EmptyCartException();
-            }
-
-            $order = Order::create(attributes: [
-                'uuid' => Str::uuid()->toString(),
+            $order = Order::create([
                 'user_id' => $user->id,
                 'status' => OrderStatus::Created,
-                'total_amount' => number_format(num: $total, decimals: 2, decimal_separator: '.', thousands_separator: ''),
-                'currency' => 'RUB',
+                'total_amount' => $total->getAmount(),
+                'delivery_method' => $input->deliveryMethod,
                 ...$this->addressToArray(address: $input->address),
             ]);
 
-            foreach ($orderItemsData as $itemData) {
-                $order->items()->create(attributes: $itemData);
+            foreach ($cart->items as $cartItem) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'product_name' => $cartItem->product->name,
+                    'product_category' => $cartItem->product->category,
+                    'unit_price' => $cartItem->product->price->getAmount(),
+                    'quantity' => $cartItem->quantity,
+                ]);
             }
 
-            $locked->items()->delete();
-            $order->load(relations: 'items');
+            $cart->items()->delete();
+            $cart->delete();
 
-            return $order;
-        });
-    }
-
-    /**
-     * @throws InvalidOrderTransitionException Если переход недопустим.
-     */
-    public function payOrder(Order $order): Order
-    {
-        return $this->transitionTo(order: $order, next: OrderStatus::Paid);
-    }
-
-    /**
-     * @throws InvalidOrderTransitionException Если заказ в терминальном статусе.
-     */
-    public function cancelOrder(Order $order): Order
-    {
-        return $this->transitionTo(order: $order, next: OrderStatus::Cancelled);
-    }
-
-    /**
-     * @throws InvalidOrderTransitionException Если переход недопустим.
-     */
-    public function updateStatus(Order $order, OrderStatus $next): Order
-    {
-        return $this->transitionTo(order: $order, next: $next);
-    }
-
-    /**
-     * @return LengthAwarePaginator<int, Order>
-     */
-    public function listOrdersForUser(User $user): LengthAwarePaginator
-    {
-        return Order::where(column: 'user_id', operator: $user->id)
-            ->orderBy(column: 'created_at', direction: 'desc')
-            ->paginate(perPage: 15);
-    }
-
-    /**
-     * @throws OrderNotFoundException Если заказ не найден или чужой.
-     */
-    public function getOrderForUser(User $user, int $orderId): Order
-    {
-        $order = Order::with(relations: 'items')
-            ->where(column: 'user_id', operator: $user->id)
-            ->find(id: $orderId);
-
-        if (! $order instanceof Order) {
-            throw OrderNotFoundException::forOrder(orderId: $orderId);
-        }
-
-        return $order;
-    }
-
-    /**
-     * @throws OrderNotFoundException
-     */
-    public function getOrder(int $orderId): Order
-    {
-        $order = Order::with(relations: 'items')->find(id: $orderId);
-
-        if (! $order instanceof Order) {
-            throw OrderNotFoundException::forOrder(orderId: $orderId);
-        }
-
-        return $order;
-    }
-
-    /**
-     * @throws InvalidOrderTransitionException
-     */
-    private function transitionTo(Order $order, OrderStatus $next): Order
-    {
-        return DB::transaction(callback: function () use ($order, $next): Order {
-            /** @var Order $locked */
-            $locked = Order::lockForUpdate()->findOrFail(id: $order->id);
-
-            $currentStatus = $locked->status instanceof OrderStatus
-                ? $locked->status
-                : OrderStatus::from(value: (string) $locked->status);
-
-            if (! $currentStatus->canTransitionTo(next: $next)) {
-                throw InvalidOrderTransitionException::forTransition(
-                    from: $currentStatus,
-                    to: $next,
-                );
-            }
-
-            $updates = ['status' => $next];
-
-            $timestampField = match ($next) {
-                OrderStatus::Paid => 'paid_at',
-                OrderStatus::Completed => 'completed_at',
-                OrderStatus::Cancelled => 'cancelled_at',
-                default => null,
-            };
-
-            if ($timestampField !== null) {
-                $updates[$timestampField] = now();
-            }
-
-            $locked->update(attributes: $updates);
-
-            return $locked;
+            return $order->fresh(['items']);
         });
     }
 
     /**
      * @return array<string, string|null>
      */
-    private function addressToArray(Address $address): array
+    private function addressToArray(?Address $address): array
     {
+        if (!$address instanceof Address) {
+            return [
+                'address_region' => null,
+                'address_city' => null,
+                'address_street' => null,
+                'address_building' => null,
+                'address_entrance' => null,
+                'address_apartment' => null,
+                'address_zip' => null,
+            ];
+        }
+
         return [
             'address_region' => $address->region,
             'address_city' => $address->city,
@@ -212,4 +103,79 @@ final readonly class OrderService
         ];
     }
 
+    private function assertCartIsValid(Cart $cart): void
+    {
+        if ($cart->items->isEmpty()) {
+            throw new CartInvalidException(message: (string) trans(key: 'order.cart_empty'));
+        }
+    }
+
+    private function assertOrderSizeIsAcceptable(Cart $cart): void
+    {
+        if ($cart->items->count() > self::MAX_ORDER_ITEMS) {
+            throw new OrderTooLargeException(message: (string) trans(key: 'order.too_large'));
+        }
+    }
+
+    public function getOrderForUser(User $user, int $orderId): Order
+    {
+        return Order::where('user_id', $user->id)
+            ->with('items')
+            ->findOrFail($orderId);
+    }
+
+    public function getOrder(int $orderId): Order
+    {
+        return Order::with(relations: 'items')->findOrFail(id: $orderId);
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function listOrdersForUser(User $user): Collection
+    {
+        return Order::where('user_id', $user->id)
+            ->with('items')
+            ->latest()
+            ->get();
+    }
+
+    public function payOrder(Order $order): Order
+    {
+        if (! $order->status->canTransitionTo(next: OrderStatus::Paid)) {
+            throw new InvalidStatusTransitionException(message: (string) trans(key: 'order.invalid_transition'));
+        }
+
+        $order->update(attributes: [
+            'status' => OrderStatus::Paid,
+            'paid_at' => now(),
+        ]);
+
+        return $order->fresh(with: ['items']);
+    }
+
+    public function cancelOrder(Order $order): Order
+    {
+        if (! $order->status->canTransitionTo(next: OrderStatus::Cancelled)) {
+            throw new InvalidStatusTransitionException(message: (string) trans(key: 'order.invalid_transition'));
+        }
+
+        $order->update(attributes: [
+            'status' => OrderStatus::Cancelled,
+            'cancelled_at' => now(),
+        ]);
+
+        return $order->fresh(with: ['items']);
+    }
+
+    public function updateStatus(Order $order, OrderStatus $status): Order
+    {
+        if (! $order->status->canTransitionTo(next: $status)) {
+            throw new InvalidStatusTransitionException(message: (string) trans(key: 'order.invalid_transition'));
+        }
+
+        $order->update(attributes: ['status' => $status]);
+
+        return $order->fresh(with: ['items']);
+    }
 }

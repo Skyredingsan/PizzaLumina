@@ -10,6 +10,6 @@ final class CartItemNotFoundException extends RuntimeException
 {
     public static function forItem(int $itemId): self
     {
-        return new self("Элемент корзины #{$itemId} не найден.");
+        return new self(trans(key: 'cart.item_not_found', replace: ['id' => $itemId]));
     }
 }
