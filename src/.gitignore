@@ -34,3 +34,5 @@ yarn-error.log
 .phpunit.result.cache
 .phpunit.cache/
 .php-cs-fixer.cache
+/var/*
+!/var/.gitkeep

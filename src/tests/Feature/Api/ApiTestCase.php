@@ -17,6 +17,11 @@ abstract class ApiTestCase extends TestCase
 
     protected string $apiBase = '/api';
 
+    private ?User $cachedCustomer = null;
+    private ?User $cachedAdmin = null;
+    private ?string $cachedCustomerToken = null;
+    private ?string $cachedAdminToken = null;
+
     protected function getApiUrl(string $path): string
     {
         return $this->apiBase.$path;
@@ -48,14 +53,38 @@ abstract class ApiTestCase extends TestCase
         ]);
     }
 
-    protected function adminToken(): string
-    {
-        return $this->getTokenForUser($this->createUser(UserRole::Admin));
-    }
-
     protected function customerToken(): string
     {
-        return $this->getTokenForUser($this->createUser(UserRole::Customer));
+        if ($this->cachedCustomerToken === null) {
+            $this->cachedCustomer = $this->createUser(UserRole::Customer);
+            $this->cachedCustomerToken = $this->getTokenForUser($this->cachedCustomer);
+        }
+
+        return $this->cachedCustomerToken;
+    }
+
+    protected function adminToken(): string
+    {
+        if ($this->cachedAdminToken === null) {
+            $this->cachedAdmin = $this->createUser(UserRole::Admin);
+            $this->cachedAdminToken = $this->getTokenForUser($this->cachedAdmin);
+        }
+
+        return $this->cachedAdminToken;
+    }
+
+    protected function customerUser(): User
+    {
+        $this->customerToken();
+
+        return $this->cachedCustomer;
+    }
+
+    protected function adminUser(): User
+    {
+        $this->adminToken();
+
+        return $this->cachedAdmin;
     }
 
     protected function authHeader(string $token): array
