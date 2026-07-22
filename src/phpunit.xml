@@ -28,7 +28,11 @@
 
         <env name="BCRYPT_ROUNDS" value="4"/>
 
-        <env name="CACHE_STORE" value="array"/>
+        <env name="CACHE_STORE" value="redis"/>
+        <env name="REDIS_CLIENT" value="phpredis"/>
+        <env name="REDIS_HOST" value="redis"/>
+        <env name="REDIS_PORT" value="6379"/>
+        <env name="REDIS_PASSWORD" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
