@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
+use Throwable;
 
 abstract class ApiTestCase extends TestCase
 {
@@ -104,7 +105,7 @@ abstract class ApiTestCase extends TestCase
     {
         try {
             Cache::tags([ProductCacheService::TAG])->flush();
-        } catch (\Throwable) {
+        } catch (Throwable) {
         }
     }
 }

@@ -24,11 +24,11 @@ final class ProductController extends Controller
 
     public function index(): JsonResponse
     {
-        $page = (int) request()->input('page', 1);
-        $perPage = (int) request()->input('per_page', self::PER_PAGE);
+        $page = (int) request()->input(key: 'page', default: 1);
+        $perPage = (int) request()->input(key: 'per_page', default: self::PER_PAGE);
 
-        $data = $this->cacheService->rememberList($page, $perPage, function () use ($page, $perPage): array {
-            $paginator = Product::query()->paginate($perPage, ['*'], 'page', $page);
+        $data = $this->cacheService->rememberList(page: $page, perPage: $perPage, loader: function () use ($page, $perPage): array {
+            $paginator = Product::query()->paginate(perPage: $perPage, columns: ['*'], page: $page);
             $arr = $paginator->toArray();
 
             return [
@@ -64,9 +64,7 @@ final class ProductController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        $data = $this->cacheService->rememberProduct($product->id, function () use ($product): array {
-            return (new ProductResource(resource: $product))->resolve();
-        });
+        $data = $this->cacheService->rememberProduct(id: $product->id, loader: fn (): array => (new ProductResource(resource: $product))->resolve());
 
         return response()->json(['data' => $data]);
     }

@@ -26,6 +26,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Notification::extend('sms', static fn (Container $app): SmsChannel => $app->make(SmsChannel::class));
 
-        Product::observe(ProductObserver::class);
+        Product::observe(classes: ProductObserver::class);
     }
 }

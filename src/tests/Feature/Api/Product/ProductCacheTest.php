@@ -18,7 +18,7 @@ final class ProductCacheTest extends ApiTestCase
     private function loginAsAdmin(): User
     {
         $admin = User::factory()
-            ->state(['role' => UserRole::Admin->value])
+            ->state(state: ['role' => UserRole::Admin->value])
             ->create();
 
         Auth::guard('api')->login($admin);
@@ -42,38 +42,38 @@ final class ProductCacheTest extends ApiTestCase
 
     public function test_index_caches_response_for_same_page(): void
     {
-        Product::factory()->count(20)->create();
+        Product::factory()->count(count: 20)->create();
 
         $service = new ProductCacheService();
-        $key = $service->listKey(1, 15);
+        $key = $service->listKey(page: 1, perPage: 15);
 
         $response1 = $this->getJson($this->getApiUrl('/products'));
         $response1->assertOk()
-            ->assertJsonPath('meta.total', 20);
+            ->assertJsonPath(path: 'meta.total', expect: 20);
 
         /** @var array<string, mixed>|null $cached */
-        $cached = Cache::tags([ProductCacheService::TAG])->get($key);
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $key);
         if ($cached !== null) {
             $this->assertSame(20, $cached['meta']['total']);
         }
 
         $response2 = $this->getJson($this->getApiUrl('/products'));
         $response2->assertOk()
-            ->assertJsonPath('meta.total', 20);
+            ->assertJsonPath(path: 'meta.total', expect: 20);
     }
 
     public function test_show_caches_single_product(): void
     {
         $product = Product::factory()->create();
         $service = new ProductCacheService();
-        $key = $service->productKey($product->id);
+        $key = $service->productKey(id: $product->id);
 
         $response1 = $this->getJson($this->getApiUrl("/products/{$product->id}"));
         $response1->assertOk()
-            ->assertJsonPath('data.id', $product->id);
+            ->assertJsonPath(path: 'data.id', expect: $product->id);
 
         /** @var array<string, mixed>|null $cached */
-        $cached = Cache::tags([ProductCacheService::TAG])->get($key);
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $key);
         if ($cached !== null) {
             $this->assertSame($product->id, $cached['id']);
         }
@@ -83,18 +83,18 @@ final class ProductCacheTest extends ApiTestCase
     {
         $this->loginAsAdmin();
 
-        Product::factory()->count(5)->create();
+        Product::factory()->count(count: 5)->create();
 
         $this->getJson($this->getApiUrl('/products'))
-            ->assertJsonPath('meta.total', 5);
+            ->assertJsonPath(path: 'meta.total', expect: 5);
 
-        $listKey = (new ProductCacheService())->listKey(1, 15);
+        $listKey = (new ProductCacheService())->listKey(page: 1, perPage: 15);
 
         $this->withToken($this->adminToken())
             ->postJson($this->getApiUrl('/products'), $this->validProductData())
             ->assertCreated();
 
-        $cached = Cache::tags([ProductCacheService::TAG])->get($listKey);
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $listKey);
         $this->assertNull($cached, 'List cache should be invalidated after product creation');
     }
 
@@ -106,7 +106,7 @@ final class ProductCacheTest extends ApiTestCase
 
         $this->getJson($this->getApiUrl("/products/{$product->id}"));
 
-        $itemKey = (new ProductCacheService())->productKey($product->id);
+        $itemKey = (new ProductCacheService())->productKey(id: $product->id);
 
         $this->withToken($this->adminToken())
             ->patchJson(
@@ -114,7 +114,7 @@ final class ProductCacheTest extends ApiTestCase
                 ['name' => 'Updated Name '.uniqid()],
             )
             ->assertOk();
-        $cached = Cache::tags([ProductCacheService::TAG])->get($itemKey);
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $itemKey);
         $this->assertNull($cached, 'Item cache should be invalidated after update');
     }
 
@@ -126,13 +126,13 @@ final class ProductCacheTest extends ApiTestCase
 
         $this->getJson($this->getApiUrl("/products/{$product->id}"));
 
-        $itemKey = (new ProductCacheService())->productKey($product->id);
+        $itemKey = (new ProductCacheService())->productKey(id: $product->id);
 
         $this->withToken($this->adminToken())
             ->deleteJson($this->getApiUrl("/products/{$product->id}"))
             ->assertNoContent();
 
-        $cached = Cache::tags([ProductCacheService::TAG])->get($itemKey);
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $itemKey);
         $this->assertNull($cached, 'Item cache should be invalidated after deletion');
     }
 
@@ -146,13 +146,13 @@ final class ProductCacheTest extends ApiTestCase
     public function test_list_cache_key_format(): void
     {
         $service = new ProductCacheService();
-        $this->assertSame('products:list:p1:pp15', $service->listKey(1, 15));
-        $this->assertSame('products:list:p2:pp50', $service->listKey(2, 50));
+        $this->assertSame('products:list:p1:pp15', $service->listKey(page: 1, perPage: 15));
+        $this->assertSame('products:list:p2:pp50', $service->listKey(page: 2, perPage: 50));
     }
 
     public function test_item_cache_key_format(): void
     {
         $service = new ProductCacheService();
-        $this->assertSame('products:item:42', $service->productKey(42));
+        $this->assertSame('products:item:42', $service->productKey(id: 42));
     }
 }

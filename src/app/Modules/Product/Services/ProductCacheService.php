@@ -27,16 +27,16 @@ final class ProductCacheService
             return $loader();
         }
 
-        $key = $this->listKey($page, $perPage);
+        $key = $this->listKey(page: $page, perPage: $perPage);
 
         try {
-            $cached = Cache::tags([self::TAG])->get($key);
-            if (is_array($cached)) {
+            $cached = Cache::tags([self::TAG])->get(key: $key);
+            if (is_array(value: $cached)) {
                 return $cached;
             }
 
             $value = $loader();
-            Cache::tags([self::TAG])->put($key, $value, self::LIST_TTL);
+            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: self::LIST_TTL);
 
             return $value;
         } catch (Throwable $e) {
@@ -56,16 +56,16 @@ final class ProductCacheService
             return $loader();
         }
 
-        $key = $this->productKey($id);
+        $key = $this->productKey(id: $id);
 
         try {
-            $cached = Cache::tags([self::TAG])->get($key);
-            if (is_array($cached)) {
+            $cached = Cache::tags([self::TAG])->get(key: $key);
+            if (is_array(value: $cached)) {
                 return $cached;
             }
 
             $value = $loader();
-            Cache::tags([self::TAG])->put($key, $value, self::ITEM_TTL);
+            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: self::ITEM_TTL);
 
             return $value;
         } catch (Throwable $e) {
