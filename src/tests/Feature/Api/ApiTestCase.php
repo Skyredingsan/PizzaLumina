@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use App\Modules\Product\Enums\ProductCategory;
+use App\Modules\Product\Services\ProductCacheService;
 use App\Modules\User\Enums\UserRole;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 abstract class ApiTestCase extends TestCase
@@ -21,6 +23,12 @@ abstract class ApiTestCase extends TestCase
     private ?User $cachedAdmin = null;
     private ?string $cachedCustomerToken = null;
     private ?string $cachedAdminToken = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->flushApplicationCache();
+    }
 
     protected function getApiUrl(string $path): string
     {
@@ -90,5 +98,13 @@ abstract class ApiTestCase extends TestCase
     protected function authHeader(string $token): array
     {
         return ['Authorization' => "Bearer {$token}"];
+    }
+
+    protected function flushApplicationCache(): void
+    {
+        try {
+            Cache::tags([ProductCacheService::TAG])->flush();
+        } catch (\Throwable) {
+        }
     }
 }

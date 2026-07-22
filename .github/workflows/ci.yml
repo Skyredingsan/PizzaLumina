@@ -68,10 +68,10 @@ jobs:
       DB_USERNAME: laravel
       DB_PASSWORD: secret
       REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
       REDIS_PASSWORD: null
-      CACHE_STORE: array
+      CACHE_STORE: redis
       SESSION_DRIVER: array
-      QUEUE_CONNECTION: sync
 
     defaults:
       run:

@@ -9,6 +9,7 @@ use App\Modules\Product\Models\Product;
 use App\Modules\Product\Requests\StoreProductRequest;
 use App\Modules\Product\Requests\UpdateProductRequest;
 use App\Modules\Product\Resources\ProductResource;
+use App\Modules\Product\Services\ProductCacheService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,11 +17,40 @@ final class ProductController extends Controller
 {
     private const PER_PAGE = 15;
 
+    public function __construct(
+        private readonly ProductCacheService $cacheService,
+    ) {
+    }
+
     public function index(): JsonResponse
     {
-        $products = Product::paginate(self::PER_PAGE);
+        $page = (int) request()->input('page', 1);
+        $perPage = (int) request()->input('per_page', self::PER_PAGE);
 
-        return ProductResource::collection(resource: $products)->response();
+        $data = $this->cacheService->rememberList($page, $perPage, function () use ($page, $perPage): array {
+            $paginator = Product::query()->paginate($perPage, ['*'], 'page', $page);
+            $arr = $paginator->toArray();
+
+            return [
+                'data' => $arr['data'],
+                'links' => [
+                    'first' => $arr['first_page_url'] ?? null,
+                    'last' => $arr['last_page_url'] ?? null,
+                    'prev' => $arr['prev_page_url'] ?? null,
+                    'next' => $arr['next_page_url'] ?? null,
+                ],
+                'meta' => [
+                    'current_page' => $arr['current_page'],
+                    'last_page' => $arr['last_page'],
+                    'per_page' => $arr['per_page'],
+                    'total' => $arr['total'],
+                    'from' => $arr['from'],
+                    'to' => $arr['to'],
+                ],
+            ];
+        });
+
+        return response()->json($data);
     }
 
     public function store(StoreProductRequest $request): JsonResponse
@@ -34,7 +64,11 @@ final class ProductController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        return (new ProductResource(resource: $product))->response();
+        $data = $this->cacheService->rememberProduct($product->id, function () use ($product): array {
+            return (new ProductResource(resource: $product))->resolve();
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
