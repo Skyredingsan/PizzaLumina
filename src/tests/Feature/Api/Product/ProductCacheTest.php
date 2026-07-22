@@ -139,8 +139,8 @@ final class ProductCacheTest extends ApiTestCase
     public function test_cache_service_supports_tags_with_redis(): void
     {
         $service = new ProductCacheService();
-        $result = $service->supportsTags();
-        $this->assertTrue($result || ! $result);
+        $service->supportsTags();
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_list_cache_key_format(): void

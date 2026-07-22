@@ -27,16 +27,18 @@ final class ProductCacheService
             return $loader();
         }
 
+        $key = $this->listKey($page, $perPage);
+
         try {
-            /** @var array<string, mixed> $result */
-            $result = Cache::tags([self::TAG])->remember(
-                $this->listKey($page, $perPage),
-                self::LIST_TTL,
-                $loader,
-            );
+            $cached = Cache::tags([self::TAG])->get($key);
+            if (is_array($cached)) {
+                return $cached;
+            }
 
-            return $result;
+            $value = $loader();
+            Cache::tags([self::TAG])->put($key, $value, self::LIST_TTL);
 
+            return $value;
         } catch (Throwable $e) {
             Log::warning('ProductCacheService list cache failed', ['exception' => $e->getMessage()]);
 
@@ -46,23 +48,26 @@ final class ProductCacheService
 
     /**
      * @param  callable(): array<string, mixed>  $loader
-     * @return array<string, mixed>|null
+     * @return array<string, mixed>
      */
-    public function rememberProduct(int $id, callable $loader): ?array
+    public function rememberProduct(int $id, callable $loader): array
     {
         if (! $this->supportsTags()) {
             return $loader();
         }
 
-        try {
-            /** @var array<string, mixed>|null $result */
-            $result = Cache::tags([self::TAG])->remember(
-                $this->productKey($id),
-                self::ITEM_TTL,
-                $loader,
-            );
+        $key = $this->productKey($id);
 
-            return $result;
+        try {
+            $cached = Cache::tags([self::TAG])->get($key);
+            if (is_array($cached)) {
+                return $cached;
+            }
+
+            $value = $loader();
+            Cache::tags([self::TAG])->put($key, $value, self::ITEM_TTL);
+
+            return $value;
         } catch (Throwable $e) {
             Log::warning('ProductCacheService item cache failed', ['id' => $id, 'exception' => $e->getMessage()]);
 
