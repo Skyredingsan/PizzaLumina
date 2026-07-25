@@ -155,4 +155,68 @@ final class ProductCacheTest extends ApiTestCase
         $service = new ProductCacheService();
         $this->assertSame('products:item:42', $service->productKey(id: 42));
     }
+
+    public function test_cached_product_contains_price_amount_and_currency(): void
+    {
+        $product = Product::factory()->create(attributes: ['price' => 1500]);
+
+        $this->getJson($this->getApiUrl("/products/{$product->id}"))
+            ->assertOk()
+            ->assertJsonPath(path: 'data.price.amount', expect: 1500)
+            ->assertJsonPath(path: 'data.price.currency', expect: 'RUB');
+
+        // Проверяем, что в кэше лежит именно массив с примитивами, а не Money-объект
+        $service = new ProductCacheService();
+        $key = $service->productKey(id: $product->id);
+
+        /** @var array<string, mixed>|null $cached */
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $key);
+        if ($cached !== null) {
+            $this->assertIsArray($cached['price'] ?? null, 'price in cache must be array, not Money object');
+            $this->assertSame(1500, $cached['price']['amount']);
+            $this->assertSame('RUB', $cached['price']['currency']);
+        }
+    }
+
+    public function test_index_clamps_per_page_to_max(): void
+    {
+        Product::factory()->count(count: 150)->create();
+
+        $response = $this->getJson($this->getApiUrl('/products?per_page=200'));
+
+        $response->assertStatus(status: 422)
+            ->assertJsonValidationErrors(errors: ['per_page']);
+    }
+
+    public function test_index_rejects_negative_per_page(): void
+    {
+        $response = $this->getJson($this->getApiUrl('/products?per_page=-5'));
+
+        $response->assertStatus(status: 422)
+            ->assertJsonValidationErrors(errors: ['per_page']);
+    }
+
+    public function test_index_rejects_non_integer_page(): void
+    {
+        $response = $this->getJson($this->getApiUrl('/products?page=abc'));
+
+        $response->assertStatus(status: 422)
+            ->assertJsonValidationErrors(errors: ['page']);
+    }
+
+    public function test_ttl_zero_disables_caching(): void
+    {
+        config(key: ['product.cache.list_ttl' => 0]);
+
+        Product::factory()->count(count: 5)->create();
+
+        $service = new ProductCacheService();
+        $key = $service->listKey(page: 1, perPage: 15);
+
+        $this->getJson($this->getApiUrl('/products'))
+            ->assertJsonPath(path: 'meta.total', expect: 5);
+
+        $cached = Cache::tags([ProductCacheService::TAG])->get(key: $key);
+        $this->assertNull($cached, 'Cache should be skipped when TTL=0');
+    }
 }

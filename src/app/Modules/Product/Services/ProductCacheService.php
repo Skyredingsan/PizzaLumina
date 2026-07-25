@@ -9,13 +9,19 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-final class ProductCacheService
+final readonly class ProductCacheService
 {
     public const string TAG = 'products';
 
-    private const int LIST_TTL = 3600;
+    private int $listTtl;
 
-    private const int ITEM_TTL = 3600;
+    private int $itemTtl;
+
+    public function __construct()
+    {
+        $this->listTtl = (int) config(key: 'product.cache.list_ttl', default: 3600);
+        $this->itemTtl = (int) config(key: 'product.cache.item_ttl', default: 3600);
+    }
 
     /**
      * @param  callable(): array<string, mixed>  $loader
@@ -23,7 +29,7 @@ final class ProductCacheService
      */
     public function rememberList(int $page, int $perPage, callable $loader): array
     {
-        if (! $this->supportsTags()) {
+        if (! $this->supportsTags() || $this->listTtl <= 0) {
             return $loader();
         }
 
@@ -36,7 +42,7 @@ final class ProductCacheService
             }
 
             $value = $loader();
-            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: self::LIST_TTL);
+            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: $this->listTtl);
 
             return $value;
         } catch (Throwable $e) {
@@ -52,7 +58,7 @@ final class ProductCacheService
      */
     public function rememberProduct(int $id, callable $loader): array
     {
-        if (! $this->supportsTags()) {
+        if (! $this->supportsTags() || $this->itemTtl <= 0) {
             return $loader();
         }
 
@@ -65,7 +71,7 @@ final class ProductCacheService
             }
 
             $value = $loader();
-            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: self::ITEM_TTL);
+            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: $this->itemTtl);
 
             return $value;
         } catch (Throwable $e) {

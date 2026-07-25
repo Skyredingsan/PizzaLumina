@@ -10,6 +10,7 @@ use App\Modules\Product\Requests\StoreProductRequest;
 use App\Modules\Product\Requests\UpdateProductRequest;
 use App\Modules\Product\Resources\ProductResource;
 use App\Modules\Product\Services\ProductCacheService;
+use App\Shared\Requests\PaginationRequest;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,10 +23,10 @@ final class ProductController extends Controller
     ) {
     }
 
-    public function index(): JsonResponse
+    public function index(PaginationRequest $request): JsonResponse
     {
-        $page = (int) request()->input(key: 'page', default: 1);
-        $perPage = (int) request()->input(key: 'per_page', default: self::PER_PAGE);
+        $page = $request->getPage();
+        $perPage = $request->getPerPage(default: self::PER_PAGE);
 
         $data = $this->cacheService->rememberList(page: $page, perPage: $perPage, loader: function () use ($page, $perPage): array {
             $paginator = Product::query()->paginate(perPage: $perPage, columns: ['*'], page: $page);

@@ -38,5 +38,9 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+
+        <env name="PRODUCT_CACHE_LIST_TTL" value="3600"/>
+        <env name="PRODUCT_CACHE_ITEM_TTL" value="3600"/>
+        <env name="PRODUCT_MAX_PER_PAGE" value="100"/>
     </php>
 </phpunit>
