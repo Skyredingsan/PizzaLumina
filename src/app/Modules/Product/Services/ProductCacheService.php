@@ -9,77 +9,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-final readonly class ProductCacheService
+/**
+ * Cache utilities for products: tag constant, key generators, invalidation.
+ *
+ * Cache read/write logic lives in CachingProductRepository (decorator).
+ * This class is used by ProductObserver to invalidate cache on model events.
+ */
+final class ProductCacheService
 {
     public const string TAG = 'products';
-
-    private int $listTtl;
-
-    private int $itemTtl;
-
-    public function __construct()
-    {
-        $this->listTtl = (int) config(key: 'product.cache.list_ttl', default: 3600);
-        $this->itemTtl = (int) config(key: 'product.cache.item_ttl', default: 3600);
-    }
-
-    /**
-     * @param  callable(): array<string, mixed>  $loader
-     * @return array<string, mixed>
-     */
-    public function rememberList(int $page, int $perPage, callable $loader): array
-    {
-        if (! $this->supportsTags() || $this->listTtl <= 0) {
-            return $loader();
-        }
-
-        $key = $this->listKey(page: $page, perPage: $perPage);
-
-        try {
-            $cached = Cache::tags([self::TAG])->get(key: $key);
-            if (is_array(value: $cached)) {
-                return $cached;
-            }
-
-            $value = $loader();
-            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: $this->listTtl);
-
-            return $value;
-        } catch (Throwable $e) {
-            Log::warning('ProductCacheService list cache failed', ['exception' => $e->getMessage()]);
-
-            return $loader();
-        }
-    }
-
-    /**
-     * @param  callable(): array<string, mixed>  $loader
-     * @return array<string, mixed>
-     */
-    public function rememberProduct(int $id, callable $loader): array
-    {
-        if (! $this->supportsTags() || $this->itemTtl <= 0) {
-            return $loader();
-        }
-
-        $key = $this->productKey(id: $id);
-
-        try {
-            $cached = Cache::tags([self::TAG])->get(key: $key);
-            if (is_array(value: $cached)) {
-                return $cached;
-            }
-
-            $value = $loader();
-            Cache::tags([self::TAG])->put(key: $key, value: $value, ttl: $this->itemTtl);
-
-            return $value;
-        } catch (Throwable $e) {
-            Log::warning('ProductCacheService item cache failed', ['id' => $id, 'exception' => $e->getMessage()]);
-
-            return $loader();
-        }
-    }
 
     public function invalidate(): void
     {

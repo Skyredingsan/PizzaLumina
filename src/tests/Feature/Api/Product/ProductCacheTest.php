@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\Product;
 
+use App\Modules\Product\Contracts\ProductRepositoryInterface;
 use App\Modules\Product\Enums\ProductCategory;
 use App\Modules\Product\Models\Product;
+use App\Modules\Product\Repositories\CachingProductRepository;
+use App\Modules\Product\Repositories\EloquentProductRepository;
 use App\Modules\Product\Services\ProductCacheService;
 use App\Modules\User\Enums\UserRole;
 use App\Modules\User\Models\User;
@@ -114,6 +117,7 @@ final class ProductCacheTest extends ApiTestCase
                 ['name' => 'Updated Name '.uniqid()],
             )
             ->assertOk();
+
         $cached = Cache::tags([ProductCacheService::TAG])->get(key: $itemKey);
         $this->assertNull($cached, 'Item cache should be invalidated after update');
     }
@@ -165,7 +169,6 @@ final class ProductCacheTest extends ApiTestCase
             ->assertJsonPath(path: 'data.price.amount', expect: 1500)
             ->assertJsonPath(path: 'data.price.currency', expect: 'RUB');
 
-        // Проверяем, что в кэше лежит именно массив с примитивами, а не Money-объект
         $service = new ProductCacheService();
         $key = $service->productKey(id: $product->id);
 
@@ -206,17 +209,29 @@ final class ProductCacheTest extends ApiTestCase
 
     public function test_ttl_zero_disables_caching(): void
     {
-        config(key: ['product.cache.list_ttl' => 0]);
+        $inner = $this->app->make(abstract: EloquentProductRepository::class);
+        $cacheService = $this->app->make(abstract: ProductCacheService::class);
+        $repo = new CachingProductRepository(
+            inner: $inner,
+            cacheService: $cacheService,
+            listTtl: 0,
+            itemTtl: 0,
+        );
 
         Product::factory()->count(count: 5)->create();
 
-        $service = new ProductCacheService();
-        $key = $service->listKey(page: 1, perPage: 15);
+        $key = $cacheService->listKey(page: 1, perPage: 15);
 
-        $this->getJson($this->getApiUrl('/products'))
-            ->assertJsonPath(path: 'meta.total', expect: 5);
+        $repo->findPaginated(page: 1, perPage: 15);
 
         $cached = Cache::tags([ProductCacheService::TAG])->get(key: $key);
         $this->assertNull($cached, 'Cache should be skipped when TTL=0');
+    }
+
+    public function test_controller_uses_caching_decorator(): void
+    {
+        $repo = $this->app->make(abstract: ProductRepositoryInterface::class);
+
+        $this->assertInstanceOf(CachingProductRepository::class, $repo);
     }
 }

@@ -5,81 +5,62 @@ declare(strict_types=1);
 namespace App\Modules\Product\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Product\Contracts\ProductRepositoryInterface;
 use App\Modules\Product\Models\Product;
 use App\Modules\Product\Requests\StoreProductRequest;
 use App\Modules\Product\Requests\UpdateProductRequest;
 use App\Modules\Product\Resources\ProductResource;
-use App\Modules\Product\Services\ProductCacheService;
 use App\Shared\Requests\PaginationRequest;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ProductController extends Controller
 {
-    private const PER_PAGE = 15;
-
     public function __construct(
-        private readonly ProductCacheService $cacheService,
+        private readonly ProductRepositoryInterface $repository,
     ) {
     }
 
     public function index(PaginationRequest $request): JsonResponse
     {
         $page = $request->getPage();
-        $perPage = $request->getPerPage(default: self::PER_PAGE);
+        $perPage = $request->getPerPage();
 
-        $data = $this->cacheService->rememberList(page: $page, perPage: $perPage, loader: function () use ($page, $perPage): array {
-            $paginator = Product::query()->paginate(perPage: $perPage, columns: ['*'], page: $page);
-            $arr = $paginator->toArray();
-
-            return [
-                'data' => $arr['data'],
-                'links' => [
-                    'first' => $arr['first_page_url'] ?? null,
-                    'last' => $arr['last_page_url'] ?? null,
-                    'prev' => $arr['prev_page_url'] ?? null,
-                    'next' => $arr['next_page_url'] ?? null,
-                ],
-                'meta' => [
-                    'current_page' => $arr['current_page'],
-                    'last_page' => $arr['last_page'],
-                    'per_page' => $arr['per_page'],
-                    'total' => $arr['total'],
-                    'from' => $arr['from'],
-                    'to' => $arr['to'],
-                ],
-            ];
-        });
+        $data = $this->repository->findPaginated($page, $perPage);
 
         return response()->json($data);
     }
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = Product::create($request->validated());
+        $product = $this->repository->create($request->validated());
 
         return (new ProductResource(resource: $product))
             ->response()
             ->setStatusCode(code: Response::HTTP_CREATED);
     }
 
-    public function show(Product $product): JsonResponse
+    public function show(int $product): JsonResponse
     {
-        $data = $this->cacheService->rememberProduct(id: $product->id, loader: fn (): array => (new ProductResource(resource: $product))->resolve());
+        $data = $this->repository->findById($product);
+
+        if ($data === null) {
+            abort(code: 404);
+        }
 
         return response()->json(['data' => $data]);
     }
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $product->update(attributes: $request->validated());
+        $this->repository->update($product, $request->validated());
 
         return (new ProductResource(resource: $product))->response();
     }
 
     public function destroy(Product $product): Response
     {
-        $product->delete();
+        $this->repository->delete($product);
 
         return response()->noContent();
     }
