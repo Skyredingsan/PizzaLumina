@@ -18,8 +18,14 @@ interface ProductRepositoryInterface
      */
     public function findById(int $id): ?array;
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function create(array $data): Product;
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function update(Product $product, array $data): Product;
 
     public function delete(Product $product): void;

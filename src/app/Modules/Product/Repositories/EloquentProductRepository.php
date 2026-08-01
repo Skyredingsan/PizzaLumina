@@ -51,14 +51,20 @@ final class EloquentProductRepository implements ProductRepositoryInterface
         return (new ProductResource(resource: $product))->resolve();
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function create(array $data): Product
     {
         return Product::create($data);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function update(Product $product, array $data): Product
     {
-        $product->update(attributes: $data);
+        $product->update($data);
 
         return $product;
     }

@@ -74,11 +74,17 @@ final readonly class CachingProductRepository implements ProductRepositoryInterf
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function create(array $data): Product
     {
         return $this->inner->create($data);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function update(Product $product, array $data): Product
     {
         return $this->inner->update($product, $data);
