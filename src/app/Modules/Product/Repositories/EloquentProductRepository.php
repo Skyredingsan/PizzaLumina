@@ -64,7 +64,7 @@ final class EloquentProductRepository implements ProductRepositoryInterface
      */
     public function update(Product $product, array $data): Product
     {
-        $product->update($data);
+        $product->update(attributes: $data);
 
         return $product;
     }
