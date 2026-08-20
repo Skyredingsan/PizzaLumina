@@ -8,7 +8,9 @@
         "php": "^8.2",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
-        "tymon/jwt-auth": "^2.0"
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "tymon/jwt-auth": "^2.0",
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^15.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",

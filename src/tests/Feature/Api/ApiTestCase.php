@@ -28,6 +28,7 @@ abstract class ApiTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->resetAuthCache();
         $this->flushApplicationCache();
     }
 
@@ -99,6 +100,14 @@ abstract class ApiTestCase extends TestCase
     protected function authHeader(string $token): array
     {
         return ['Authorization' => "Bearer {$token}"];
+    }
+
+    protected function resetAuthCache(): void
+    {
+        $this->cachedCustomer = null;
+        $this->cachedAdmin = null;
+        $this->cachedCustomerToken = null;
+        $this->cachedAdminToken = null;
     }
 
     protected function flushApplicationCache(): void

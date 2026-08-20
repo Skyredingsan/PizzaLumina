@@ -19,7 +19,7 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->word(),
+            'name' => fake()->words(2, true).' '.fake()->randomNumber(nbDigits: 5),
             'description' => fake()->sentence(),
             'price' => Money::fromRubles(rubles: fake()->numberBetween(int1: 100, int2: 10000)),
             'weight' => fake()->numberBetween(int1: 100, int2: 5000),
