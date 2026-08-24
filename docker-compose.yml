@@ -15,6 +15,8 @@ services:
     environment:
       - PHP_IDE_CONFIG=serverName=PizzaLumina
       - APP_ENV=local
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,6 +45,8 @@ services:
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,6 +73,8 @@ services:
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
     depends_on:
       postgres:
         condition: service_healthy
@@ -176,7 +182,6 @@ services:
       sleep 2;
       mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
       mc mb --ignore-existing local/pizzalumina-reports;
-      mc anonymous set download local/pizzalumina-reports;
       echo 'Bucket pizzalumina-reports created';
       "
     networks:

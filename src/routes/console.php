@@ -9,3 +9,5 @@ Schedule::command('reports:schedule-daily')
     ->name('reports-daily')
     ->withoutOverlapping()
     ->onOneServer();
+
+Schedule::command('reports:publish-outbox')->everyMinute()->withoutOverlapping();

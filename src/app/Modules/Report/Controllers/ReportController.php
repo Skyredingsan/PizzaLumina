@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -53,17 +54,20 @@ class ReportController extends Controller
     {
         $data = $request->validated();
 
-        $report = Report::create([
-            'type' => $data['type'],
-            'status' => ReportStatus::Pending,
-            'parameters' => $data['parameters'] ?? null,
-            'created_by' => Auth::id(),
-        ]);
+        $report = DB::transaction(function () use ($data): Report {
+            $report = Report::create([
+                'type' => $data['type'],
+                'status' => ReportStatus::Pending,
+                'parameters' => $data['parameters'] ?? null,
+                'created_by' => Auth::id(),
+            ]);
 
-        // Dispatch to configured connection (rabbitmq in prod, sync in tests)
-        dispatch(job: new GenerateReportJob(reportId: $report->id))
-            ->onConnection(connection: config(key: 'report.queue.connection'))
-            ->onQueue(queue: config(key: 'report.queue.queue'));
+            dispatch(job: new GenerateReportJob(reportId: $report->id))
+                ->onConnection(connection: config(key: 'report.queue.connection'))
+                ->onQueue(queue: config(key: 'report.queue.queue'));
+
+            return $report;
+        });
 
         return (new ReportResource(resource: $report))
             ->response()

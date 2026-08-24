@@ -97,6 +97,9 @@ return [
                     'passphrase' => env('RABBITMQ_SSL_PASSPHRASE'),
                 ],
                 'queue' => [
+                    'exchange' => env('RABBITMQ_EXCHANGE', 'reports'),
+                    'exchange_type' => env('RABBITMQ_EXCHANGE_TYPE', 'topic'),
+                    'exchange_routing_key' => env('RABBITMQ_EXCHANGE_ROUTING_KEY', 'reports.#'),
                     'job' => VladimirYuldashev\LaravelQueueRabbitMQ\Queue\Jobs\RabbitMQJob::class,
                 ],
             ],

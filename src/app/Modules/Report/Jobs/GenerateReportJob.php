@@ -9,14 +9,17 @@ use App\Modules\Product\Models\Product;
 use App\Modules\Report\Enums\ReportStatus;
 use App\Modules\Report\Enums\ReportType;
 use App\Modules\Report\Models\Report;
+use App\Modules\Report\Models\ReportOutbox;
 use App\Modules\User\Models\User;
 use DateTimeInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -48,12 +51,16 @@ class GenerateReportJob implements ShouldQueue
     public function handle(): void
     {
         $report = Report::findOrFail($this->reportId);
+        /** @var ReportStatus $reportStatus */
+        $reportStatus = $report->status;
+        /** @var ReportType $reportType */
+        $reportType = $report->type;
 
         // Idempotency: skip if already completed/failed (e.g., retry after crash)
-        if ($report->status->isTerminal()) {
+        if ($reportStatus->isTerminal()) {
             Log::info('Report already in terminal state, skipping', [
                 'report_id' => $report->id,
-                'status' => $report->status->value,
+                'status' => $reportStatus->value,
             ]);
             return;
         }
@@ -69,23 +76,24 @@ class GenerateReportJob implements ShouldQueue
                 'file_path' => $filePath,
                 'file_name' => basename(path: $filePath),
                 'file_size' => $fileSize,
-                'mime_type' => $report->type === ReportType::Sales ? 'application/jsonl' : 'text/csv',
+                'mime_type' => $reportType === ReportType::Sales ? 'application/jsonl' : 'text/csv',
                 'error' => null,
             ]);
 
-            dispatch(job: new PublishReportCompletedJob(reportId: $report->id))
-                ->onConnection(connection: config(key: 'report.queue.connection'))
-                ->onQueue(queue: config(key: 'report.queue.completed_queue'));
+            ReportOutbox::firstOrCreate(
+                ['report_id' => $report->id, 'event' => 'report.completed'],
+                ['payload' => ['report_id' => $report->id, 'type' => $reportType->value, 'file_path' => $filePath]],
+            );
 
             Log::info('Report generated successfully', [
                 'report_id' => $report->id,
-                'type' => $report->type->value,
+                'type' => $reportType->value,
                 'file_size' => $fileSize,
             ]);
         } catch (Throwable $e) {
             Log::error('Report generation failed', [
                 'report_id' => $report->id,
-                'type' => $report->type->value,
+                'type' => $reportType->value,
                 'error' => $e->getMessage(),
                 'exception' => $e::class,
             ]);
@@ -107,11 +115,14 @@ class GenerateReportJob implements ShouldQueue
      */
     private function generate(Report $report): string
     {
+        /** @var ReportType $reportType */
+        $reportType = $report->type;
+
         $filePath = sprintf(
             'reports/%s/%s.%s',
-            $report->type->value,
+            $reportType->value,
             $report->id,
-            $report->type === ReportType::Sales ? 'jsonl' : 'csv'
+            $reportType === ReportType::Sales ? 'jsonl' : 'csv'
         );
 
         $tempPath = tempnam(directory: sys_get_temp_dir(), prefix: 'pizzalumina_report_');
@@ -122,20 +133,30 @@ class GenerateReportJob implements ShouldQueue
                 throw new RuntimeException(message: 'Failed to open temp file for writing: ' . $tempPath);
             }
 
-            if ($report->type !== ReportType::Sales) {
+            if ($reportType !== ReportType::Sales) {
                 // BOM and header are kept for spreadsheet reports.
-                fwrite(stream: $handle, data: "\xEF\xBB\xBF");
-                fputcsv(stream: $handle, fields: $this->getHeader(type: $report->type));
+                if (fwrite(stream: $handle, data: "\xEF\xBB\xBF") === false) {
+                    throw new RuntimeException(message: 'Failed to write report BOM');
+                }
+                if (fputcsv(stream: $handle, fields: $this->getHeader(type: $reportType)) === false) {
+                    throw new RuntimeException(message: 'Failed to write report header');
+                }
             }
 
             // Stream data using chunked cursor (memory-efficient: loads 1000 rows at a time)
-            $this->buildQuery(report: $report)->chunkById(count: 1000, callback: function ($chunk) use ($handle, $report): void {
+            /** @param Collection<int, OrderItem> $chunk */
+            $this->buildQuery(report: $report)->chunkById(count: 1000, callback: function ($chunk) use ($handle, $reportType): void {
                 foreach ($chunk as $model) {
-                    $row = $this->formatRow(model: $model, type: $report->type);
-                    if ($report->type === ReportType::Sales) {
-                        fwrite(stream: $handle, data: json_encode(value: $row, flags: JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) . PHP_EOL);
-                    } else {
-                        fputcsv(stream: $handle, fields: $row);
+                    /** @var OrderItem $model */
+                    $row = $this->formatRow(model: $model, type: $reportType);
+                    if ($reportType === ReportType::Sales) {
+                        for ($unit = 0; $unit < $model->quantity; $unit++) {
+                            if (fwrite(stream: $handle, data: json_encode(value: $row, flags: JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) . PHP_EOL) === false) {
+                                throw new RuntimeException(message: 'Failed to write sales report row');
+                            }
+                        }
+                    } elseif (fputcsv(stream: $handle, fields: $row) === false) {
+                        throw new RuntimeException(message: 'Failed to write report row');
                     }
                 }
             });
@@ -202,12 +223,30 @@ class GenerateReportJob implements ShouldQueue
     {
         $query = OrderItem::query()->with(relations: 'order.user');
 
-        if (isset($parameters['from']) && $parameters['from']) {
-            $query->whereHas(relation: 'order', callback: fn (Builder $order): Builder => $order->where(column: 'created_at', operator: '>=', value: $parameters['from']));
-        }
-        if (isset($parameters['to']) && $parameters['to']) {
-            $query->whereHas(relation: 'order', callback: fn (Builder $order): Builder => $order->where(column: 'created_at', operator: '<=', value: $parameters['to']));
-        }
+        $query->whereHas(relation: 'order', callback: function (Builder $order) use ($parameters): void {
+            $order->whereIn('status', ['paid', 'in_progress', 'delivering', 'completed']);
+            $from = isset($parameters['from']) ? Date::parse($parameters['from'])->startOfDay() : null;
+            $to = isset($parameters['to']) ? Date::parse($parameters['to'])->addDay()->startOfDay() : null;
+            $order->where(column: function (Builder $event) use ($from, $to): void {
+                $event->where(column: function (Builder $paid) use ($from, $to): void {
+                    $paid->whereIn('status', ['paid', 'in_progress', 'delivering']);
+                    if ($from !== null) {
+                        $paid->where(column: 'paid_at', operator: '>=', value: $from);
+                    }
+                    if ($to !== null) {
+                        $paid->where(column: 'paid_at', operator: '<', value: $to);
+                    }
+                })->orWhere(column: function (Builder $completed) use ($from, $to): void {
+                    $completed->where(column: 'status', operator: 'completed');
+                    if ($from !== null) {
+                        $completed->where(column: 'completed_at', operator: '>=', value: $from);
+                    }
+                    if ($to !== null) {
+                        $completed->where(column: 'completed_at', operator: '<', value: $to);
+                    }
+                });
+            });
+        });
 
         return $query->orderBy('id');
     }
@@ -247,7 +286,7 @@ class GenerateReportJob implements ShouldQueue
             ReportType::Sales => [
                 'product_name' => $model->product_name,
                 'price' => $model->unit_price,
-                'amount' => $model->quantity,
+                'amount' => 1,
                 'user' => ['id' => $model->order?->user_id],
             ],
             ReportType::Products => [
