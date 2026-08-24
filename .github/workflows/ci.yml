@@ -79,11 +79,6 @@ jobs:
           MINIO_ROOT_PASSWORD: minioadmin
         ports:
           - 9000:9000
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
 
     env:
       APP_ENV: testing
@@ -163,7 +158,13 @@ jobs:
           php artisan rabbitmq:queue-bind reports.completed reports --routing-key=reports.completed
 
       - name: MinIO smoke
-        run: curl --fail http://127.0.0.1:9000/minio/health/live
+        run: |
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:9000/minio/health/live && exit 0
+            sleep 2
+          done
+          echo "MinIO did not become ready" >&2
+          exit 1
 
       - name: Tests
         run: php artisan test
