@@ -19,7 +19,7 @@ final class RoleMiddleware
             $roleValue = Auth::guard('api')->payload()->get('role');
         } catch (Throwable) {
             return response()->json([
-                'message' => 'Неавторизованный запрос. Укажите валидный Bearer-токен.',
+                'message' => __(key: 'api.unauthorized'),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -29,7 +29,7 @@ final class RoleMiddleware
 
         if ($userRole === null) {
             return response()->json([
-                'message' => 'Токен не содержит валидной роли. Обновите токен через /auth/refresh.',
+                'message' => __(key: 'api.invalid_role'),
             ], Response::HTTP_FORBIDDEN);
         }
 

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\User\Services;
 
 use App\Modules\User\DTO\RegisterInput;
+use App\Modules\User\Events\UserRegistered;
 use App\Modules\User\Models\User;
 use App\Modules\User\Notifications\SendWelcomeSms;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Tymon\JWTAuth\JWTGuard;
 
 final class AuthService
@@ -22,6 +24,7 @@ final class AuthService
         ]);
 
         $user->notify(new SendWelcomeSms(name: $user->name));
+        Event::dispatch(new UserRegistered(user: $user));
 
         return $this->guard()->login(user: $user);
     }

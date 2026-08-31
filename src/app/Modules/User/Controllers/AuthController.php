@@ -39,7 +39,7 @@ final class AuthController extends Controller
 
         if ($token === null) {
             return response()->json([
-                'message' => 'Неверные учётные данные.',
+                'message' => __(key: 'api.invalid_credentials'),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -50,7 +50,7 @@ final class AuthController extends Controller
     {
         $this->auth->logout();
 
-        return response()->json(['message' => 'Успешный выход.']);
+        return response()->json(['message' => __(key: 'api.logout_success')]);
     }
 
     public function me(): JsonResponse
@@ -59,7 +59,7 @@ final class AuthController extends Controller
 
         if (! $user instanceof User) {
             return response()->json([
-                'message' => 'Пользователь не найден.',
+                'message' => __(key: 'api.user_not_found'),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
