@@ -41,7 +41,8 @@ RUN install-php-extensions \
     json \
     mbstring \
     tokenizer \
-    xml
+    xml \
+    sockets
 
 # Copy Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer

@@ -42,5 +42,22 @@
         <env name="PRODUCT_CACHE_LIST_TTL" value="3600"/>
         <env name="PRODUCT_CACHE_ITEM_TTL" value="3600"/>
         <env name="PRODUCT_MAX_PER_PAGE" value="100"/>
+
+        <env name="MINIO_ACCESS_KEY" value="minioadmin"/>
+        <env name="MINIO_SECRET_KEY" value="minioadmin"/>
+        <env name="MINIO_BUCKET" value="pizzalumina-reports-test"/>
+        <env name="MINIO_ENDPOINT" value="http://minio:9000"/>
+        <env name="MINIO_REGION" value="us-east-1"/>
+
+        <env name="AWS_ACCESS_KEY_ID" value="minioadmin"/>
+        <env name="AWS_SECRET_ACCESS_KEY" value="minioadmin"/>
+        <env name="AWS_DEFAULT_REGION" value="us-east-1"/>
+        <env name="AWS_BUCKET" value="pizzalumina-reports-test"/>
+        <env name="AWS_ENDPOINT" value="http://minio:9000"/>
+        <env name="AWS_USE_PATH_STYLE_ENDPOINT" value="true"/>
+
+        <env name="REPORT_QUEUE_CONNECTION" value="sync"/>
+        <env name="REPORT_QUEUE_NAME" value="reports.generate"/>
+        <env name="REPORT_DOWNLOAD_URL_EXPIRES" value="5"/>
     </php>
 </phpunit>

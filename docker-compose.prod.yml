@@ -7,5 +7,28 @@ services:
       APP_DEBUG: "false"
     volumes: !reset []
 
+  queue-worker:
+    build:
+      target: prod
+    command: php artisan queue:work rabbitmq --queue=reports.generate,reports.completed --sleep=3 --tries=1 --timeout=300
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes: !reset []
+
+  scheduler:
+    build:
+      target: prod
+    command: php artisan schedule:work
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes: !reset []
+
   nginx:
     volumes: !reset []
+  rabbitmq:
+    ports: !reset []
+
+  minio:
+    ports: !reset []

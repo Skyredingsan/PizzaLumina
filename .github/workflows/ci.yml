@@ -58,6 +58,29 @@ jobs:
           --health-timeout 3s
           --health-retries 5
 
+      rabbitmq:
+        image: rabbitmq:4.0-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      minio:
+        image: minio/minio:latest
+        command: server /data --console-address ":9001"
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        ports:
+          - 9000:9000
+
     env:
       APP_ENV: testing
       APP_URL: http://localhost
@@ -70,6 +93,13 @@ jobs:
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       REDIS_PASSWORD: null
+      RABBITMQ_HOST: 127.0.0.1
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      MINIO_ENDPOINT: http://127.0.0.1:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
       CACHE_STORE: redis
       SESSION_DRIVER: array
 
@@ -119,6 +149,23 @@ jobs:
 
       - name: Rector
         run: vendor/bin/rector process --dry-run
+
+      - name: RabbitMQ topology smoke
+        run: |
+          php artisan rabbitmq:exchange-declare reports --type=topic
+          php artisan rabbitmq:queue-declare reports.generate
+          php artisan rabbitmq:queue-declare reports.completed
+          php artisan rabbitmq:queue-bind reports.generate reports --routing-key=reports.generate
+          php artisan rabbitmq:queue-bind reports.completed reports --routing-key=reports.completed
+
+      - name: MinIO smoke
+        run: |
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:9000/minio/health/live && exit 0
+            sleep 2
+          done
+          echo "MinIO did not become ready" >&2
+          exit 1
 
       - name: Tests
         run: php artisan test

@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 1
-			path: app/Modules/Order/Services/OrderService.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between App\\Modules\\Order\\DTO\\Address and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Modules/Order/Services/OrderService.php
-
-		-
 			message: '#^Class App\\Modules\\Product\\Models\\Product uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -77,6 +65,108 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Modules/Product/Resources/ProductResource.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Modules/Report/Controllers/ReportController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 4
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Cannot call method isTerminal\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:buildCustomersQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:buildProductsQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:buildQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:buildSalesQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Parameter \$model of method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:formatRow\(\) expects App\\Modules\\Order\\Models\\OrderItem\|App\\Modules\\Product\\Models\\Product\|App\\Modules\\User\\Models\\User, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Parameter \$type of method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:formatRow\(\) expects App\\Modules\\Report\\Enums\\ReportType, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Parameter \$type of method App\\Modules\\Report\\Jobs\\GenerateReportJob\:\:getHeader\(\) expects App\\Modules\\Report\\Enums\\ReportType, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Report/Jobs/GenerateReportJob.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Modules/Report/Jobs/PublishReportCompletedJob.php
+
+		-
+			message: '#^Class App\\Modules\\Report\\Models\\Report uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Models/Report.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Models\\Report\:\:newFactory\(\) return type with generic class Illuminate\\Database\\Eloquent\\Factories\\Factory does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Models/Report.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Models\\Report\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Modules/Report/Models/Report.php
+
+		-
+			message: '#^Method App\\Modules\\Report\\Requests\\StoreReportRequest\:\:rules\(\) should return array\<string, list\<Illuminate\\Validation\\Rule\|string\>\> but returns array\{type\: array\{''required'', ''string'', Illuminate\\Validation\\Rules\\Enum\}, parameters\: array\{''sometimes'', ''array''\}, ''parameters\.from''\: array\{''sometimes'', ''string'', ''date''\}, ''parameters\.to''\: array\{''sometimes'', ''string'', ''date'', ''after_or_equal…''\}, ''parameters\.category''\: array\{''sometimes'', ''string''\}, ''parameters\.role''\: array\{''sometimes'', ''string''\}\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Modules/Report/Requests/StoreReportRequest.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Modules/Report/Resources/ReportResource.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Notifications\\Notification\:\:toSms\(\)\.$#'
@@ -245,6 +335,24 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: tests/Feature/Api/Order/OrderManagementTest.php
+
+		-
+			message: '#^Offset ''from'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: tests/Feature/Api/Report/ScheduleDailyReportCommandTest.php
+
+		-
+			message: '#^Offset ''scheduled'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: tests/Feature/Api/Report/ScheduleDailyReportCommandTest.php
+
+		-
+			message: '#^Offset ''to'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: tests/Feature/Api/Report/ScheduleDailyReportCommandTest.php
 
 		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
