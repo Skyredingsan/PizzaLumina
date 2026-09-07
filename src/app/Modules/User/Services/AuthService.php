@@ -9,6 +9,7 @@ use App\Modules\User\Events\UserRegistered;
 use App\Modules\User\Models\User;
 use App\Modules\User\Notifications\SendWelcomeSms;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Tymon\JWTAuth\JWTGuard;
 
@@ -16,15 +17,17 @@ final class AuthService
 {
     public function register(RegisterInput $input): string
     {
-        $user = User::create([
-            'name' => $input->name,
-            'phone' => $input->phone,
-            'email' => $input->email,
-            'password' => $input->password,
-        ]);
-
-        $user->notify(new SendWelcomeSms(name: $user->name));
-        Event::dispatch(new UserRegistered(user: $user));
+        $user = DB::transaction(function () use ($input): User {
+            $user = User::create([
+                'name' => $input->name,
+                'phone' => $input->phone,
+                'email' => $input->email,
+                'password' => $input->password,
+            ]);
+            $user->notify(new SendWelcomeSms(name: $user->name));
+            Event::dispatch(new UserRegistered(user: $user));
+            return $user;
+        });
 
         return $this->guard()->login(user: $user);
     }

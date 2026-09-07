@@ -40,8 +40,7 @@ final class RoleMiddleware
 
         if (! in_array(needle: $userRole, haystack: $allowedRoles, strict: true)) {
             return response()->json([
-                'message' => 'Доступ запрещён. Требуется роль: '
-                    .implode(separator: ', ', array: array_map(callback: fn (UserRole $r) => $r->value, array: $allowedRoles)),
+                'message' => __(key: 'api.forbidden_role', replace: ['role' => implode(separator: ', ', array: array_map(callback: fn (UserRole $r) => $r->value, array: $allowedRoles))]),
             ], Response::HTTP_FORBIDDEN);
         }
 

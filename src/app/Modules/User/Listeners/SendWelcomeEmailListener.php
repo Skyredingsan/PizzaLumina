@@ -6,8 +6,9 @@ namespace App\Modules\User\Listeners;
 
 use App\Modules\User\Events\UserRegistered;
 use App\Modules\User\Notifications\SendWelcomeEmail;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-final class SendWelcomeEmailListener
+final class SendWelcomeEmailListener implements ShouldQueue
 {
     public function handle(UserRegistered $event): void
     {
