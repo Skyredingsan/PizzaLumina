@@ -21,3 +21,8 @@ Route::prefix('auth')->group(callback: function (): void {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 });
+
+Route::prefix('admin/users')->middleware(['jwt.auth', 'role:admin'])->group(callback: function (): void {
+    Route::get('/', [App\Modules\User\Controllers\AdminUserController::class, 'index']);
+    Route::patch('/{user}/role', [App\Modules\User\Controllers\AdminUserController::class, 'updateRole']);
+});
