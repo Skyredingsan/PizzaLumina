@@ -38,7 +38,35 @@ services:
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
     restart: unless-stopped
-    command: php artisan queue:work rabbitmq --queue=reports.generate,reports.completed --sleep=3 --tries=1 --timeout=300
+    command: php artisan queue:work rabbitmq --queue=reports.generate --sleep=3 --tries=1 --timeout=300
+    volumes:
+      - ./src:/var/www/app
+      - php-var:/var/www/app/var
+      - composer_cache:/tmp/composer
+    environment:
+      - APP_ENV=local
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - pizzalumina
+
+  queue-completed-worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: dev
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    restart: unless-stopped
+    command: php artisan queue:work rabbitmq --queue=reports.completed --sleep=3 --tries=1 --timeout=300
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var

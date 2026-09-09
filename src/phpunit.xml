@@ -23,6 +23,7 @@
 
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_LOCALE" value="ru" force="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="APP_STATICS" value="patch"/>
 

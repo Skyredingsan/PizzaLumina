@@ -12,7 +12,10 @@ use App\Modules\Product\Observers\ProductObserver;
 use App\Modules\Product\Repositories\CachingProductRepository;
 use App\Modules\Product\Repositories\EloquentProductRepository;
 use App\Modules\User\Channels\SmsChannel;
+use App\Modules\User\Events\UserRegistered;
+use App\Modules\User\Listeners\SendWelcomeEmailListener;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 
@@ -44,5 +47,6 @@ class AppServiceProvider extends ServiceProvider
         Notification::extend('sms', static fn (Container $app): SmsChannel => $app->make(SmsChannel::class));
 
         Product::observe(classes: ProductObserver::class);
+        Event::listen(UserRegistered::class, SendWelcomeEmailListener::class);
     }
 }

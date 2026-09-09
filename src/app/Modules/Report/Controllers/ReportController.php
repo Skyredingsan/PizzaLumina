@@ -87,14 +87,14 @@ class ReportController extends Controller
 
         if ($report->status !== ReportStatus::Completed) {
             return response()->json([
-                'message' => 'Report is not completed yet',
+                'message' => __(key: 'api.report_not_completed'),
                 'status' => $report->status->value,
             ], 409);
         }
 
         if (!$report->fileExists()) {
             return response()->json([
-                'message' => 'Report file not found in storage',
+                'message' => __(key: 'api.report_file_not_found'),
             ], 404);
         }
 

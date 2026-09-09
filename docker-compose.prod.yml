@@ -10,7 +10,16 @@ services:
   queue-worker:
     build:
       target: prod
-    command: php artisan queue:work rabbitmq --queue=reports.generate,reports.completed --sleep=3 --tries=1 --timeout=300
+    command: php artisan queue:work rabbitmq --queue=reports.generate --sleep=3 --tries=1 --timeout=300
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes: !reset []
+
+  queue-completed-worker:
+    build:
+      target: prod
+    command: php artisan queue:work rabbitmq --queue=reports.completed --sleep=3 --tries=1 --timeout=300
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
