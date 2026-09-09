@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\User\Controllers\AdminUserController;
 use App\Modules\User\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,6 @@ Route::prefix('auth')->group(callback: function (): void {
 });
 
 Route::prefix('admin/users')->middleware(['jwt.auth', 'role:admin'])->group(callback: function (): void {
-    Route::get('/', [App\Modules\User\Controllers\AdminUserController::class, 'index']);
-    Route::patch('/{user}/role', [App\Modules\User\Controllers\AdminUserController::class, 'updateRole']);
+    Route::get('/', [AdminUserController::class, 'index']);
+    Route::patch('/{user}/role', [AdminUserController::class, 'updateRole']);
 });

@@ -14,7 +14,7 @@ final class AdminUserTest extends ApiTestCase
         $this->createUser(UserRole::Customer);
         $this->withHeaders($this->authHeader($this->adminToken()))
             ->getJson($this->getApiUrl('/admin/users'))
-            ->assertOk()->assertJsonPath('data.0.email', fn ($value): bool => is_string($value));
+            ->assertOk()->assertJsonPath(path: 'data.0.email', expect: fn ($value): bool => is_string(value: $value));
     }
 
     public function test_non_admin_cannot_manage_users(): void
@@ -29,7 +29,7 @@ final class AdminUserTest extends ApiTestCase
         $user = $this->createUser(UserRole::Customer);
         $this->withHeaders($this->authHeader($this->adminToken()))
             ->patchJson($this->getApiUrl("/admin/users/{$user->id}/role"), ['role' => 'admin'])
-            ->assertOk()->assertJsonPath('data.role', 'admin');
+            ->assertOk()->assertJsonPath(path: 'data.role', expect: 'admin');
         $this->assertDatabaseHas('users', ['id' => $user->id, 'role' => 'admin']);
     }
 }

@@ -14,7 +14,7 @@ final class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $supported = ['ru', 'en'];
-        $locale = $request->getPreferredLanguage($supported);
+        $locale = $request->getPreferredLanguage(locales: $supported);
 
         App::setLocale($locale ?? config(key: 'app.locale', default: 'en'));
 
