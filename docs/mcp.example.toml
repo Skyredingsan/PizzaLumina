@@ -1,0 +1,20 @@
+# Example MCP configuration for local development.
+# Copy the entries into your user-level Codex/Claude MCP configuration.
+# Do not commit real tokens. Provide them through environment variables.
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.context7.env]
+CONTEXT7_API_KEY = "${CONTEXT7_API_KEY}"
+
+[mcp_servers.firecrawl]
+command = "npx"
+args = ["-y", "firecrawl-mcp"]
+
+[mcp_servers.firecrawl.env]
+FIRECRAWL_API_KEY = "${FIRECRAWL_API_KEY}"
+
+# Context Hub generator is used to generate/update project context artifacts.
+# Keep its installation and cache outside this repository.
