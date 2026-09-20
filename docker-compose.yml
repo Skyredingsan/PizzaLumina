@@ -11,6 +11,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - PHP_IDE_CONFIG=serverName=PizzaLumina
@@ -42,6 +43,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
@@ -70,6 +72,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
@@ -98,6 +101,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
@@ -223,6 +227,7 @@ volumes:
   minio_data:
   composer_cache:
   php-var:
+  vendor_data:
 
 networks:
   pizzalumina:

@@ -11,3 +11,7 @@ Admin endpoints require a JWT and the `role:admin` middleware. User roles are va
 ## Localization
 
 API locale is selected by `Accept-Language` and limited to `ru` and `en`. Keep user-facing messages in language files.
+
+## Admin API safety
+
+Pagination uses `AdminUserListRequest` and `AdminUserListInput`, capped at 100. An administrator cannot change their own role or demote the last administrator; both return HTTP 409.
