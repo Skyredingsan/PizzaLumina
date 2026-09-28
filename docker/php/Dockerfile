@@ -73,6 +73,9 @@ ARG HOST_GID=1000
 
 RUN install-php-extensions xdebug
 
+COPY src/composer.json src/composer.lock ./
+RUN composer install --prefer-dist --no-interaction --no-progress --no-scripts
+
 COPY docker/php/conf/xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug.ini
 
 RUN groupmod -o -g "${HOST_GID}" www-data && \
