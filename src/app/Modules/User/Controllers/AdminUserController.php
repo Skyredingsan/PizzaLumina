@@ -11,6 +11,7 @@ use App\Modules\User\Requests\UpdateUserRoleRequest;
 use App\Modules\User\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 final class AdminUserController
 {
@@ -29,10 +30,22 @@ final class AdminUserController
         if ($current instanceof User && $current->is(model: $user)) {
             return response()->json(['message' => __(key: 'api.cannot_change_own_role')], 409);
         }
-        if ($user->isAdmin() && $newRole !== UserRole::Admin && User::query()->where(column: 'role', operator: UserRole::Admin)->count() <= 1) {
-            return response()->json(['message' => __(key: 'api.last_admin')], 409);
-        }
-        $user->update(attributes: ['role' => $newRole]);
-        return response()->json(['data' => UserResource::make($user->refresh())]);
+        return DB::transaction(callback: function () use ($user, $newRole): JsonResponse {
+            $adminIds = User::query()
+                ->where(column: 'role', operator: UserRole::Admin)
+                ->orderBy(column: 'id')
+                ->lockForUpdate()
+                ->pluck(column: 'id');
+
+            $lockedUser = User::query()->lockForUpdate()->findOrFail(id: $user->getKey());
+
+            if ($lockedUser->isAdmin() && $newRole !== UserRole::Admin && $adminIds->count() <= 1) {
+                return response()->json(['message' => __(key: 'api.last_admin')], 409);
+            }
+
+            $lockedUser->update(attributes: ['role' => $newRole]);
+
+            return response()->json(['data' => UserResource::make($lockedUser->refresh())]);
+        }, attempts: 3);
     }
 }

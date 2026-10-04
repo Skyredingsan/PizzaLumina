@@ -42,7 +42,8 @@ RUN install-php-extensions \
     mbstring \
     tokenizer \
     xml \
-    sockets
+    sockets \
+    pcntl
 
 # Copy Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer

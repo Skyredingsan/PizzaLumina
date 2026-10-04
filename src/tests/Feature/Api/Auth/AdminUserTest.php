@@ -78,4 +78,19 @@ final class AdminUserTest extends ApiTestCase
             ->assertOk()->assertJsonPath(path: 'data.role', expect: 'admin');
         $this->assertDatabaseHas('users', ['id' => $user->id, 'role' => 'admin']);
     }
+
+    public function test_demoted_admin_token_immediately_loses_admin_access(): void
+    {
+        $actingAdmin = $this->adminUser();
+        $demotedAdmin = $this->createUser(UserRole::Admin);
+        $demotedToken = $this->getTokenForUser($demotedAdmin);
+
+        $this->withHeaders($this->authHeader($this->getTokenForUser($actingAdmin)))
+            ->patchJson($this->getApiUrl("/admin/users/{$demotedAdmin->id}/role"), ['role' => 'customer'])
+            ->assertOk();
+
+        $this->withHeaders($this->authHeader($demotedToken))
+            ->getJson($this->getApiUrl('/admin/users'))
+            ->assertForbidden();
+    }
 }

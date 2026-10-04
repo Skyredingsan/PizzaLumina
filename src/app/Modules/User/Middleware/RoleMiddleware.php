@@ -5,33 +5,25 @@ declare(strict_types=1);
 namespace App\Modules\User\Middleware;
 
 use App\Modules\User\Enums\UserRole;
+use App\Modules\User\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 final class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        try {
-            $roleValue = Auth::guard('api')->payload()->get('role');
-        } catch (Throwable) {
+        $user = Auth::guard('api')->user();
+
+        if (! $user instanceof User) {
             return response()->json([
                 'message' => __(key: 'api.unauthorized'),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $userRole = $roleValue !== null
-            ? UserRole::tryFrom(value: $roleValue)
-            : null;
-
-        if ($userRole === null) {
-            return response()->json([
-                'message' => __(key: 'api.invalid_role'),
-            ], Response::HTTP_FORBIDDEN);
-        }
+        $userRole = $user->role;
 
         $allowedRoles = array_map(
             callback: UserRole::from(...),
