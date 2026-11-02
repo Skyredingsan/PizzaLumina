@@ -1,4 +1,4 @@
-.PHONY: up down build shell logs restart composer-install artisan migrate test test-db-create test-db-drop test-db-reset fresh clean cs cs-dr phpstan phpstan-baseline rector rector-dr quality quality-dr
+.PHONY: up down build shell logs restart composer-install artisan migrate test test-db-create test-db-drop test-db-reset fresh clean cs cs-dr phpstan phpstan-baseline rector rector-dr openapi quality quality-dr
 
 up:
 	docker compose up -d
@@ -61,8 +61,11 @@ rector:
 rector-dr:
 	docker compose exec php vendor/bin/rector process --dry-run
 
+openapi:
+	docker compose exec php php artisan l5-swagger:generate
+
 quality: cs rector
 	make test
 
-quality-dr: cs-dr phpstan rector-dr
+quality-dr: cs-dr phpstan rector-dr openapi
 	make test

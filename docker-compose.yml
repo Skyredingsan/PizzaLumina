@@ -8,6 +8,7 @@ services:
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
     restart: unless-stopped
+    command: sh -lc "php artisan l5-swagger:generate && exec /usr/local/sbin/php-fpm"
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var

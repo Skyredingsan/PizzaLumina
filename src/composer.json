@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "darkaonline/l5-swagger": "^11.2",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
@@ -50,12 +51,14 @@
         "cs-check": "vendor/bin/pint --test",
         "cs-fix": "vendor/bin/pint",
         "phpstan": "vendor/bin/phpstan analyse",
+        "openapi": "php artisan l5-swagger:generate",
         "rector-dry": "vendor/bin/rector process --dry-run",
         "rector": "vendor/bin/rector process",
         "ci-quality": [
             "@cs-check",
             "@phpstan",
             "@rector-dry",
+            "@openapi",
             "@test"
         ]
     },

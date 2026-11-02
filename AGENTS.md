@@ -38,6 +38,7 @@ docker compose exec php php artisan test --filter=TestName
 docker compose exec php vendor/bin/phpstan analyse --no-progress
 docker compose exec php vendor/bin/rector process --dry-run
 docker compose exec php vendor/bin/php-cs-fixer fix --dry-run --diff
+docker compose exec php php artisan l5-swagger:generate
 ```
 
 If dependencies are missing in a development container, rebuild the image and recreate the services:
@@ -57,6 +58,10 @@ docker compose up -d --force-recreate php queue-worker queue-completed-worker sc
 - An administrator cannot change their own role or demote the last administrator; both cases return HTTP 409.
 - Unknown route model bindings must return HTTP 404.
 - Validate all request input through FormRequest classes.
+
+## OpenAPI documentation
+
+Swagger UI is available at `/api/doc`; the generated JSON document is served from `/docs`. Keep attributes in `src/app/OpenApi` aligned with real routes, FormRequests and API Resources. OpenAPI generation is part of `make quality-dr` and CI.
 
 ## Localization
 

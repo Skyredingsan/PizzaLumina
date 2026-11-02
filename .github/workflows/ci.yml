@@ -150,6 +150,9 @@ jobs:
       - name: Rector
         run: vendor/bin/rector process --dry-run
 
+      - name: Generate and validate OpenAPI
+        run: php artisan l5-swagger:generate
+
       - name: RabbitMQ topology smoke
         run: |
           php artisan rabbitmq:exchange-declare reports --type=topic

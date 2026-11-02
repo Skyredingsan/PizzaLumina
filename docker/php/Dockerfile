@@ -109,6 +109,7 @@ RUN composer install \
 COPY src ./
 
 RUN composer dump-autoload --classmap-authoritative --no-dev && \
+    php artisan l5-swagger:generate && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
