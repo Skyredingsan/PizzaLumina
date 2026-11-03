@@ -42,7 +42,8 @@ RUN install-php-extensions \
     mbstring \
     tokenizer \
     xml \
-    sockets
+    sockets \
+    pcntl
 
 # Copy Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
@@ -72,6 +73,9 @@ ARG HOST_UID=1000
 ARG HOST_GID=1000
 
 RUN install-php-extensions xdebug
+
+COPY src/composer.json src/composer.lock ./
+RUN composer install --prefer-dist --no-interaction --no-progress --no-scripts
 
 COPY docker/php/conf/xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug.ini
 
@@ -105,6 +109,7 @@ RUN composer install \
 COPY src ./
 
 RUN composer dump-autoload --classmap-authoritative --no-dev && \
+    php artisan l5-swagger:generate && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \

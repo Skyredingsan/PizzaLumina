@@ -10,3 +10,6 @@ Thumbs.db
 # Logs
 *.log.idea/
 .idea/
+
+# Generated OpenAPI document
+src/storage/api-docs/

@@ -8,9 +8,11 @@ services:
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
     restart: unless-stopped
+    command: sh -lc "php artisan l5-swagger:generate && exec /usr/local/sbin/php-fpm"
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - PHP_IDE_CONFIG=serverName=PizzaLumina
@@ -42,6 +44,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
@@ -70,6 +73,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
@@ -98,6 +102,7 @@ services:
     volumes:
       - ./src:/var/www/app
       - php-var:/var/www/app/var
+      - vendor_data:/var/www/app/vendor
       - composer_cache:/tmp/composer
     environment:
       - APP_ENV=local
@@ -178,7 +183,7 @@ services:
       - pizzalumina
 
   minio:
-    image: minio/minio:latest
+    image: ghcr.io/coollabsio/minio@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -198,7 +203,7 @@ services:
       - pizzalumina
 
   minio-init:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:latest
     depends_on:
       minio:
         condition: service_healthy
@@ -223,6 +228,7 @@ volumes:
   minio_data:
   composer_cache:
   php-var:
+  vendor_data:
 
 networks:
   pizzalumina:

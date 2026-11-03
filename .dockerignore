@@ -1,0 +1,13 @@
+.git
+.idea
+.phpunit.cache
+
+src/vendor
+src/var
+src/bootstrap/cache/*.php
+src/storage/api-docs/*
+src/storage/framework/cache/*
+src/storage/framework/sessions/*
+src/storage/framework/testing/*
+src/storage/framework/views/*
+src/storage/logs/*
